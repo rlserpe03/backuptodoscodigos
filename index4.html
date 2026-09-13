@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Premiação Escolar</title>
+    <style>
+        /* ==========================================================================
+           1. ESTILOS GERAIS E PALETA DE CORES (AZUL, AMARELO E BRANCO)
+           ========================================================================== */
+        :root {
+            --azul-principal: #1e88e5;
+            --azul-escuro: #1565c0;
+            --amarelo-principal: #fbc02d;
+            --amarelo-claro: #fff59d;
+            --branco: #ffffff;
+            --cinza-fundo: #f4f6f9;
+            --texto: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cinza-fundo);
+            color: var(--texto);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--azul-principal);
+            color: var(--branco);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+        }
+
+        .btn-logout {
+            background-color: var(--amarelo-principal);
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background-color: #fdd835;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--branco);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--azul-principal);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: var(--azul-escuro);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button.btn-acao {
+            background-color: var(--azul-principal);
+            color: var(--branco);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button.btn-acao:hover {
+            background-color: var(--azul-escuro);
+        }
+
+        /* Grade de Botões/Caixas de Premiação */
+        .grid-pontos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .card-ponto {
+            background-color: var(--amarelo-claro);
+            border: 2px solid var(--amarelo-principal);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .card-ponto:hover {
+            transform: scale(1.03);
+            background-color: var(--amarelo-principal);
+        }
+
+        .card-ponto .valor {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--azul-escuro);
+            display: block;
+            margin-top: 5px;
+        }
+
+        .placar-pontos {
+            background-color: var(--amarelo-claro);
+            border: 2px solid var(--amarelo-principal);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .placar-pontos h3 {
+            font-size: 2.5rem;
+            color: #555;
+        }
+
+        .lista-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tag-pontos {
+            background-color: var(--amarelo-principal);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            main {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏆 Escola do Futuro</h1>
+        <div id="area-usuario" class="oculto">
+            <span id="nome-perfil"></span>
+            <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- TELA 1: LOGIN -->
+        <section id="tela-login" class="card">
+            <h2>Acesso ao Sistema</h2>
+            <div class="form-group">
+                <label for="tipo-usuario">Selecione o seu perfil:</label>
+                <select id="tipo-usuario">
+                    <option value="professor">Professor</option>
+                    <option value="aluno">Aluno / Pais</option>
+                    <option value="adm">Administrador</option>
+                </select>
+            </div>
+            <button class="btn-acao" onclick="fazerLogin()">Entrar</button>
+        </section>
+
+        <!-- TELA 2: PAINEL DO PROFESSOR -->
+        <section id="painel-professor" class="oculto">
+            <div class="card">
+                <h2>Lançar Pontos ou Ocorrência</h2>
+                
+                <!-- Seleção de Turma para Filtrar Alunos -->
+                <div class="form-group">
+                    <label for="prof-turma-select">1. Selecione a Turma:</label>
+                    <select id="prof-turma-select" onchange="filtrarAlunosPorTurma()">
+                        <!-- As turmas serão inseridas via JS -->
+                    </select>
+                </div>
+
+                <!-- Seleção do Aluno Filtrado -->
+                <div class="form-group">
+                    <label for="prof-aluno-select">2. Selecione o Aluno:</label>
+                    <select id="prof-aluno-select">
+                        <!-- Alunos da turma aparecerão aqui -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo-registro">3. Tipo de Lançamento:</label>
+                    <select id="tipo-registro" onchange="alternarCamposProfessor()">
+                        <option value="ponto">Atribuir Pontos (Clique no Motivo)</option>
+                        <option value="ocorrencia">Registrar Ocorrência</option>
+                    </select>
+                </div>
+
+                <!-- Caixas de Seleção de Pontos (Clique para Atribuir) -->
+                <div id="grupo-pontos" class="form-group">
+                    <label>Clique na caixa para pontuar o aluno:</label>
+                    <div class="grid-pontos">
+                        <div class="card-ponto" onclick="adicionarPonto(1, 'Participação em Aula')">
+                            🙋‍♂️ Participação
+                            <span class="valor">+1 Ponto</span>
+                        </div>
+                        <div class="card-ponto" onclick="adicionarPonto(2, 'Tarefa Entregue')">
+                            📚 Tarefa
+                            <span class="valor">+2 Pontos</span>
+                        </div>
+                        <div class="card-ponto" onclick="adicionarPonto(3, 'Trabalho em Equipe')">
+                            🤝 Trabalho Equipe
+                            <span class="valor">+3 Pontos</span>
+                        </div>
+                        <div class="card-ponto" onclick="adicionarPonto(1, 'Bom Comportamento')">
+                            ⭐ Comportamento
+                            <span class="valor">+1 Ponto</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área para Registro de Ocorrências -->
+                <div id="grupo-ocorrencia" class="form-group oculto">
+                    <label for="desc-ocorrencia">Descrição da Ocorrência:</label>
+                    <textarea id="desc-ocorrencia" rows="3" placeholder="Descreva o ocorrido para os pais..."></textarea>
+                    <button class="btn-acao" style="margin-top: 10px;" onclick="salvarOcorrenciaProfessor()">Confirmar Ocorrência</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TELA 3: PAINEL DO ALUNO / PAIS -->
+        <section id="painel-aluno" class="oculto">
+            <div class="placar-pontos">
+                <h2>Sua Pontuação Total</h2>
+                <h3 id="exibir-pontos">0</h3>
+                <p>Continue se dedicando!</p>
+            </div>
+
+            <div class="card">
+                <h2>Histórico de Ocorrências e Observações</h2>
+                <div id="lista-ocorrencias-aluno"></div>
+            </div>
+        </section>
+
+        <!-- TELA 4: PAINEL DO ADMINISTRADOR -->
+        <section id="painel-adm" class="oculto">
+            <!-- Gerenciar Turmas -->
+            <div class="card">
+                <h2>1. Cadastrar Nova Turma</h2>
+                <div class="form-group">
+                    <label for="adm-nome-turma">Nome da Turma:</label>
+                    <input type="text" id="adm-nome-turma" placeholder="Ex: 6º Ano A">
+                </div>
+                <button class="btn-acao" onclick="cadastrarTurma()">Cadastrar Turma</button>
+            </div>
+
+            <!-- Cadastrar Aluno Manualmente -->
+            <div class="card">
+                <h2>2. Cadastrar Aluno em Turma Existente</h2>
+                <div class="form-group">
+                    <label for="adm-nome-aluno">Nome do Aluno:</label>
+                    <input type="text" id="adm-nome-aluno" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="adm-select-turma-aluno">Selecione a Turma Cadastrada:</label>
+                    <select id="adm-select-turma-aluno">
+                        <!-- Populado via JS -->
+                    </select>
+                </div>
+                <button class="btn-acao" onclick="cadastrarAlunoManual()">Cadastrar Aluno</button>
+            </div>
+
+            <!-- Importação de CSV -->
+            <div class="card">
+                <h2>3. Importar Alunos via CSV</h2>
+                <p style="margin-bottom: 10px; font-size: 0.9rem;">
+                    Selecione um arquivo .csv no formato: <strong>Nome,NomeDaTurmaExata</strong>
+                </p>
+                <div class="form-group">
+                    <input type="file" id="arquivo-csv" accept=".csv">
+                </div>
+                <button class="btn-acao" style="background-color: var(--amarelo-principal); color:#000;" onclick="importarCSV()">Importar Planilha</button>
+            </div>
+
+            <div class="card">
+                <h2>Alunos Cadastrados por Turma</h2>
+                <div id="lista-alunos-adm"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================================================
+         JAVASCRIPT - LÓGICA ATUALIZADA
+         ========================================================================== -->
+    <script>
+        // Dados do sistema
+        let turmas = ["6º Ano A", "7º Ano B"];
+
+        let alunos = [
+            { id: 0, nome: "João Silva", turma: "6º Ano A", pontos: 15, ocorrencias: ["Chegou atrasado."] },
+            { id: 1, nome: "Maria Oliveira", turma: "6º Ano A", pontos: 30, ocorrencias: [] },
+            { id: 2, nome: "Carlos Eduardo", turma: "7º Ano B", pontos: 10, ocorrencias: [] }
+        ];
+
+        // Controle de Login e Navegação
+        function fazerLogin() {
+            const perfil = document.getElementById('tipo-usuario').value;
+
+            document.getElementById('tela-login').classList.add('oculto');
+            document.getElementById('area-usuario').classList.remove('oculto');
+
+            if (perfil === 'professor') {
+                document.getElementById('nome-perfil').innerText = "Perfil: Professor";
+                document.getElementById('painel-professor').classList.remove('oculto');
+                carregarTurmasProfessor();
+            } else if (perfil === 'aluno') {
+                document.getElementById('nome-perfil').innerText = "Perfil: Aluno / Pais (João Silva)";
+                document.getElementById('painel-aluno').classList.remove('oculto');
+                carregarDadosAluno(0);
+            } else if (perfil === 'adm') {
+                document.getElementById('nome-perfil').innerText = "Perfil: Administrador";
+                document.getElementById('painel-adm').classList.remove('oculto');
+                atualizarDropdownsTurma();
+                atualizarListaAdm();
+            }
+        }
+
+        function fazerLogout() {
+            document.getElementById('painel-professor').classList.add('oculto');
+            document.getElementById('painel-aluno').classList.add('oculto');
+            document.getElementById('painel-adm').classList.add('oculto');
+            document.getElementById('area-usuario').classList.add('oculto');
+            document.getElementById('tela-login').classList.remove('oculto');
+        }
+
+        // LÓGICA DO PROFESSOR (FILTRO E CAIXAS DE PONTOS)
+        function carregarTurmasProfessor() {
+            const selectTurma = document.getElementById('prof-turma-select');
+            selectTurma.innerHTML = "";
+            turmas.forEach(turma => {
+                selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
+            });
+            filtrarAlunosPorTurma();
+        }
+
+        function filtrarAlunosPorTurma() {
+            const turmaSelecionada = document.getElementById('prof-turma-select').value;
+            const selectAluno = document.getElementById('prof-aluno-select');
+            selectAluno.innerHTML = "";
+
+            const alunosDaTurma = alunos.filter(a => a.turma === turmaSelecionada);
+
+            if (alunosDaTurma.length === 0) {
+                selectAluno.innerHTML = `<option value="">Nenhum aluno nesta turma</option>`;
+                return;
+            }
+
+            alunosDaTurma.forEach(aluno => {
+                selectAluno.innerHTML += `<option value="${aluno.id}">${aluno.nome}</option>`;
+            });
+        }
+
+        function alternarCamposProfessor() {
+            const tipo = document.getElementById('tipo-registro').value;
+            if (tipo === 'ponto') {
+                document.getElementById('grupo-pontos').classList.remove('oculto');
+                document.getElementById('grupo-ocorrencia').classList.add('oculto');
+            } else {
+                document.getElementById('grupo-pontos').classList.add('oculto');
+                document.getElementById('grupo-ocorrencia').classList.remove('oculto');
+            }
+        }
+
+        function adicionarPonto(qtd, motivo) {
+            const alunoId = document.getElementById('prof-aluno-select').value;
+            if (alunoId === "" || alunoId === null) {
+                alert("Selecione um aluno válido!");
+                return;
+            }
+
+            const aluno = alunos.find(a => a.id == alunoId);
+            if (aluno) {
+                aluno.pontos += qtd;
+                alert(`✨ +${qtd} ponto(s) atribuído(s) para ${aluno.nome} por: ${motivo}`);
+            }
+        }
+
+        function salvarOcorrenciaProfessor() {
+            const alunoId = document.getElementById('prof-aluno-select').value;
+            const desc = document.getElementById('desc-ocorrencia').value;
+
+            if (!alunoId) { alert("Selecione um aluno!"); return; }
+            if (desc.trim() === "") { alert("Digite a descrição da ocorrência."); return; }
+
+            const aluno = alunos.find(a => a.id == alunoId);
+            aluno.ocorrencias.push(desc);
+            alert(`Ocorrência registrada com sucesso para ${aluno.nome}.`);
+            document.getElementById('desc-ocorrencia').value = "";
+        }
+
+        // LÓGICA DO ALUNO
+        function carregarDadosAluno(id) {
+            const aluno = alunos.find(a => a.id === id);
+            document.getElementById('exibir-pontos').innerText = aluno.pontos;
+
+            const listaOcorrencias = document.getElementById('lista-ocorrencias-aluno');
+            listaOcorrencias.innerHTML = "";
+
+            if (aluno.ocorrencias.length === 0) {
+                listaOcorrencias.innerHTML = "<p>Nenhuma ocorrência registrada! Parabéns!</p>";
+            } else {
+                aluno.ocorrencias.forEach(oc => {
+                    listaOcorrencias.innerHTML += `<div class="lista-item">📌 ${oc}</div>`;
+                });
+            }
+        }
+
+        // LÓGICA DO ADMINISTRADOR
+        function cadastrarTurma() {
+            const nomeTurma = document.getElementById('adm-nome-turma').value.trim();
+            if (nomeTurma === "") {
+                alert("Digite o nome da turma!");
+                return;
+            }
+            if (turmas.includes(nomeTurma)) {
+                alert("Esta turma já está cadastrada!");
+                return;
+            }
+
+            turmas.push(nomeTurma);
+            alert(`Turma "${nomeTurma}" cadastrada com sucesso!`);
+            document.getElementById('adm-nome-turma').value = "";
+            atualizarDropdownsTurma();
+        }
+
+        function atualizarDropdownsTurma() {
+            const selectAdm = document.getElementById('adm-select-turma-aluno');
+            selectAdm.innerHTML = "";
+            turmas.forEach(t => {
+                selectAdm.innerHTML += `<option value="${t}">${t}</option>`;
+            });
+        }
+
+        function cadastrarAlunoManual() {
+            const nome = document.getElementById('adm-nome-aluno').value.trim();
+            const turma = document.getElementById('adm-select-turma-aluno').value;
+
+            if (nome === "") {
+                alert("Digite o nome do aluno!");
+                return;
+            }
+
+            alunos.push({ id: Date.now(), nome: nome, turma: turma, pontos: 0, ocorrencias: [] });
+            alert(`Aluno ${nome} cadastrado na turma ${turma}!`);
+            document.getElementById('adm-nome-aluno').value = "";
+            atualizarListaAdm();
+        }
+
+        function atualizarListaAdm() {
+            const container = document.getElementById('lista-alunos-adm');
+            container.innerHTML = "";
+            alunos.forEach(a => {
+                container.innerHTML += `<div class="lista-item"><span><strong>${a.nome}</strong> (${a.turma})</span> <span class="tag-pontos">${a.pontos} pts</span></div>`;
+            });
+        }
+
+        function importarCSV() {
+            const input = document.getElementById('arquivo-csv');
+            if (!input.files || !input.files[0]) {
+                alert("Selecione um arquivo CSV primeiro.");
+                return;
+            }
+
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                const linhas = e.target.result.split('\n');
+                linhas.forEach(linha => {
+                    const dados = linha.split(',');
+                    if (dados.length >= 2 && dados[0].trim() !== "") {
+                        const nome = dados[0].trim();
+                        const turma = dados[1].trim();
+
+                        // Se a turma importada não existir, cria automaticamente
+                        if (!turmas.includes(turma)) {
+                            turmas.push(turma);
+                        }
+
+                        alunos.push({
+                            id: Date.now() + Math.random(),
+                            nome: nome,
+                            turma: turma,
+                            pontos: 0,
+                            ocorrencias: []
+                        });
+                    }
+                });
+                alert("Importação de alunos realizada com sucesso!");
+                atualizarDropdownsTurma();
+                atualizarListaAdm();
+            };
+            leitor.readAsText(input.files[0]);
+        }
+    </script>
+</body>
+</html>

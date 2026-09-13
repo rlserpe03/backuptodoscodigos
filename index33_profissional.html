@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Importação do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Sistema Escola do Futuro - Loja de Recompensas</title>
+    <style>
+/* ==========================================================================
+   ESCOLA DO FUTURO — DESIGN SYSTEM PROFISSIONAL
+   Interface moderna, responsiva e com aparência de plataforma SaaS
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+:root{
+    --primary:#4f46e5;
+    --primary-dark:#3730a3;
+    --primary-light:#eef2ff;
+    --secondary:#06b6d4;
+    --success:#10b981;
+    --success-light:#ecfdf5;
+    --warning:#f59e0b;
+    --warning-light:#fffbeb;
+    --danger:#ef4444;
+    --danger-light:#fef2f2;
+    --text:#172033;
+    --text-soft:#64748b;
+    --muted:#94a3b8;
+    --bg:#f5f7fb;
+    --surface:#ffffff;
+    --border:#e5e7eb;
+    --shadow-sm:0 2px 8px rgba(15,23,42,.05);
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+    --shadow-lg:0 22px 60px rgba(15,23,42,.16);
+    --radius:16px;
+    --radius-sm:10px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 5% 0%, rgba(79,70,229,.07), transparent 28rem),
+        radial-gradient(circle at 100% 20%, rgba(6,182,212,.06), transparent 25rem),
+        var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+    font-size:14px;
+}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',Inter,sans-serif;letter-spacing:-.025em}
+button,input,select,textarea{font:inherit}
+button{transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
+button:active{transform:translateY(1px)}
+::selection{background:#c7d2fe;color:#312e81}
+
+/* HEADER */
+header{
+    min-height:72px;
+    padding:0 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    color:#fff;
+    background:linear-gradient(110deg,#312e81 0%,#4f46e5 52%,#6366f1 100%);
+    box-shadow:0 8px 28px rgba(49,46,129,.20);
+    position:relative;
+    z-index:20;
+}
+header:after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(90deg,rgba(255,255,255,.06),transparent 45%,rgba(255,255,255,.05));
+}
+header h1{
+    position:relative;
+    z-index:1;
+    font-size:1.25rem;
+    font-weight:800;
+    letter-spacing:-.04em;
+}
+#area-usuario{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:600;
+}
+#nome-perfil{opacity:.94}
+.btn-logout{
+    border:1px solid rgba(255,255,255,.24);
+    background:rgba(255,255,255,.13);
+    color:#fff;
+    padding:9px 16px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    backdrop-filter:blur(10px);
+}
+.btn-logout:hover{background:rgba(255,255,255,.22);box-shadow:0 5px 16px rgba(0,0,0,.14)}
+
+/* NAV */
+.nav-sub-bar{
+    padding:12px 24px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    background:rgba(255,255,255,.94);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 3px 12px rgba(15,23,42,.04);
+    position:sticky;
+    top:0;
+    z-index:15;
+    backdrop-filter:blur(14px);
+}
+.btn-nav{
+    appearance:none;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--text-soft);
+    padding:9px 14px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    white-space:nowrap;
+}
+.btn-nav:hover{background:var(--primary-light);color:var(--primary)}
+.btn-nav.ativo{
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),#6366f1);
+    box-shadow:0 5px 14px rgba(79,70,229,.22);
+}
+
+/* LAYOUT */
+.app-container{display:flex;min-height:calc(100vh - 72px)}
+sidebar{
+    width:260px;
+    flex:0 0 260px;
+    padding:24px 16px;
+    background:rgba(255,255,255,.82);
+    border-right:1px solid var(--border);
+    box-shadow:4px 0 18px rgba(15,23,42,.03);
+}
+sidebar h3{
+    padding:0 10px 12px;
+    color:var(--text-soft);
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+}
+.item-turma{
+    padding:12px 14px;
+    margin-bottom:6px;
+    border:1px solid transparent;
+    border-radius:11px;
+    background:transparent;
+    color:var(--text-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:650;
+    cursor:pointer;
+}
+.item-turma:hover{
+    background:var(--primary-light);
+    color:var(--primary);
+    border-color:#e0e7ff;
+}
+.item-turma.ativa{
+    color:var(--primary);
+    background:linear-gradient(90deg,#eef2ff,#f5f3ff);
+    border-color:#c7d2fe;
+    box-shadow:var(--shadow-sm);
+}
+main{flex:1;min-width:0;padding:30px;max-width:1600px;margin:0 auto;width:100%}
+main>section>h2, main section h2{color:var(--text)}
+main>section>p{color:var(--text-soft)!important}
+
+/* LOGIN */
+#tela-login{max-width:460px!important;margin:70px auto!important}
+#tela-login .card{
+    padding:34px!important;
+    border:1px solid rgba(255,255,255,.8);
+    border-top:0;
+    box-shadow:var(--shadow-lg);
+    border-radius:22px;
+    background:rgba(255,255,255,.94);
+}
+#tela-login .card:before{
+    content:"🏆";
+    display:grid;
+    place-items:center;
+    width:64px;height:64px;
+    margin:0 auto 18px;
+    border-radius:18px;
+    background:var(--primary-light);
+    font-size:2rem;
+}
+#tela-login h2{
+    text-align:center;
+    margin-bottom:24px!important;
+    color:var(--text)!important;
+    font-size:1.45rem;
+}
+#tela-login .btn-acao{margin-top:6px}
+
+/* CARDS */
+.card{
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin-bottom:22px;
+    box-shadow:var(--shadow-sm);
+    position:relative;
+    overflow:hidden;
+}
+.card:has(> h2:first-child):before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--primary),var(--secondary));
+    opacity:.85;
+}
+.card:hover{box-shadow:var(--shadow)}
+.card h2{font-size:1.18rem;margin-bottom:8px}
+.card h3{font-size:1rem}
+.card p{color:var(--text-soft)}
+
+/* FORMS */
+.form-group{margin-bottom:18px}
+label{
+    display:block;
+    margin-bottom:7px;
+    color:#334155;
+    font-size:.83rem;
+    font-weight:700;
+}
+input,select,textarea{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid #d8dee9;
+    border-radius:10px;
+    outline:none;
+    background:#fff;
+    color:var(--text);
+    font-size:.92rem;
+    transition:border .18s,box-shadow .18s,background .18s;
+}
+input::placeholder,textarea::placeholder{color:#a8b1bf}
+input:hover,select:hover,textarea:hover{border-color:#b8c2d1}
+input:focus,select:focus,textarea:focus{
+    border-color:#818cf8;
+    box-shadow:0 0 0 4px rgba(99,102,241,.11);
+}
+textarea{resize:vertical;min-height:82px}
+
+/* BUTTONS */
+button.btn-acao{
+    width:100%;
+    border:0;
+    padding:11px 16px;
+    border-radius:10px;
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),#6366f1);
+    font-weight:750;
+    cursor:pointer;
+    box-shadow:0 5px 14px rgba(79,70,229,.18);
+}
+button.btn-acao:hover{
+    transform:translateY(-1px);
+    box-shadow:0 8px 20px rgba(79,70,229,.25);
+    filter:brightness(1.03);
+}
+button.btn-sucesso{background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 5px 14px rgba(16,185,129,.18)}
+button.btn-alerta{background:linear-gradient(135deg,#d97706,#f59e0b)}
+button.btn-perigo{background:linear-gradient(135deg,#dc2626,#ef4444)}
+button.btn-editar{
+    border:0;
+    background:#f1f5f9;
+    color:#475569;
+    padding:7px 11px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+}
+button.btn-editar:hover{background:#e2e8f0;color:var(--primary)}
+
+/* ALUNOS / PRODUTOS */
+.grid-alunos,.grid-produtos{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:18px;
+    margin-top:22px;
+}
+.card-aluno,.card-produto{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:22px 18px;
+    text-align:center;
+    position:relative;
+    transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+    box-shadow:var(--shadow-sm);
+}
+.card-aluno:hover,.card-produto:hover{
+    transform:translateY(-5px);
+    box-shadow:var(--shadow);
+    border-color:#c7d2fe;
+}
+.card-aluno:before,.card-produto:before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:4px;
+    border-radius:18px 18px 0 0;
+    background:linear-gradient(90deg,var(--primary),var(--secondary));
+}
+.badge-pontos{
+    top:10px;right:10px;
+    width:auto;height:auto;min-width:36px;
+    padding:6px 9px;
+    border:0;
+    border-radius:999px;
+    background:#fef3c7;
+    color:#92400e;
+    font-size:.76rem;
+    box-shadow:0 2px 7px rgba(146,64,14,.12);
+}
+
+/* PONTUAÇÃO */
+.box-pontos-relatorio{
+    background:
+        radial-gradient(circle at 90% 10%,rgba(255,255,255,.25),transparent 12rem),
+        linear-gradient(135deg,#312e81,#4f46e5 55%,#06b6d4);
+    color:#fff;
+    border:0;
+    border-radius:20px;
+    padding:28px;
+    text-align:center;
+    margin-bottom:22px;
+    box-shadow:0 15px 35px rgba(79,70,229,.22);
+}
+.box-pontos-relatorio h1{font-size:3.4rem;color:#fff!important;margin:2px 0}
+.box-pontos-relatorio h3{color:#fff}
+.box-pontos-relatorio p{color:rgba(255,255,255,.82)!important}
+
+/* CHECKBOX */
+.checkbox-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    max-height:190px;
+    overflow-y:auto;
+    padding:10px;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:10px;
+}
+.checkbox-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:8px 9px;
+    border-radius:8px;
+    cursor:pointer;
+}
+.checkbox-item:hover{background:#eef2ff}
+.checkbox-item input{width:auto;accent-color:var(--primary)}
+
+/* TABELAS */
+.tabela-dados{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    margin-top:14px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:12px;
+}
+.tabela-dados th,.tabela-dados td{
+    padding:13px 14px;
+    border-bottom:1px solid #edf0f4;
+    text-align:left;
+    font-size:.84rem;
+    vertical-align:middle;
+}
+.tabela-dados th{
+    background:#f8fafc;
+    color:#475569;
+    font-size:.73rem;
+    text-transform:uppercase;
+    letter-spacing:.055em;
+    font-weight:800;
+}
+.tabela-dados tr:last-child td{border-bottom:0}
+.tabela-dados tbody tr{transition:background .15s}
+.tabela-dados tbody tr:hover{background:#f8faff}
+.linha-clicavel{cursor:pointer}
+.badge-status{
+    display:inline-flex;
+    align-items:center;
+    padding:5px 9px;
+    border-radius:999px;
+    font-size:.7rem;
+    font-weight:800;
+    color:#fff;
+}
+.status-pendente{background:#f59e0b}
+.status-entregue{background:#10b981}
+
+/* OCORRÊNCIAS */
+.item-ocorrencia{
+    background:#fff;
+    border:1px solid #fee2e2;
+    border-left:4px solid var(--danger);
+    padding:11px 14px;
+    margin-bottom:9px;
+    border-radius:10px;
+    box-shadow:0 2px 7px rgba(15,23,42,.04);
+}
+
+/* AVATARES */
+.grid-avatars{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(82px,1fr));
+    gap:12px;
+    margin-top:18px;
+}
+.card-avatar-opcao{
+    font-size:2.35rem;
+    background:#f8fafc;
+    border:2px solid var(--border);
+    border-radius:14px;
+    padding:13px 8px;
+    text-align:center;
+    cursor:pointer;
+    transition:.18s ease;
+}
+.card-avatar-opcao:hover{transform:translateY(-3px) scale(1.03);border-color:#a5b4fc;background:#eef2ff}
+.card-avatar-opcao.selecionado{
+    border-color:var(--primary);
+    background:var(--primary-light);
+    box-shadow:0 0 0 3px rgba(79,70,229,.1);
+}
+
+/* MODAIS */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.66);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+    backdrop-filter:blur(7px);
+}
+.modal-content{
+    width:min(620px,100%);
+    max-height:92vh;
+    overflow-y:auto;
+    position:relative;
+    background:#fff;
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:22px;
+    padding:30px;
+    box-shadow:var(--shadow-lg);
+    animation:modalIn .2s ease-out;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.modal-fechar{
+    position:absolute;
+    top:15px;right:18px;
+    width:34px;height:34px;
+    display:grid;place-items:center;
+    border-radius:9px;
+    font-size:1.55rem;
+    font-weight:500;
+    cursor:pointer;
+    color:#64748b;
+    background:#f1f5f9;
+}
+.modal-fechar:hover{background:#fee2e2;color:#dc2626}
+.grid-comportamentos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 17px}
+.btn-comportamento,.btn-desconto{
+    border-radius:10px;
+    padding:10px;
+    font-weight:750;
+    font-size:.82rem;
+    cursor:pointer;
+    transition:.18s ease;
+}
+.btn-comportamento{
+    background:#ecfdf5;
+    border:1px solid #bbf7d0;
+    color:#047857;
+}
+.btn-comportamento:hover{background:#10b981;color:#fff;transform:translateY(-1px)}
+.btn-desconto{
+    background:#fff1f2;
+    border:1px solid #fecdd3;
+    color:#be123c;
+}
+.btn-desconto:hover{background:#ef4444;color:#fff;transform:translateY(-1px)}
+
+/* SCROLLBARS */
+*{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
+*::-webkit-scrollbar{width:7px;height:7px}
+*::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+*::-webkit-scrollbar-track{background:transparent}
+
+/* UTILITÁRIO */
+.oculto{display:none!important}
+
+/* RESPONSIVO */
+@media (max-width:900px){
+    header{padding:0 18px;min-height:66px}
+    header h1{font-size:1.05rem}
+    #nome-perfil{display:none}
+    .nav-sub-bar{padding:9px 12px;overflow-x:auto;flex-wrap:nowrap}
+    .btn-nav{font-size:.78rem;padding:8px 11px}
+    .app-container{display:block}
+    sidebar{
+        width:100%;
+        padding:12px;
+        border-right:0;
+        border-bottom:1px solid var(--border);
+    }
+    sidebar h3{display:none}
+    #lista-turmas-sidebar{
+        flex-direction:row!important;
+        overflow-x:auto;
+        gap:7px!important;
+    }
+    .item-turma{white-space:nowrap;margin:0}
+    main{padding:18px 14px}
+    .card{padding:19px}
+    .grid-alunos,.grid-produtos{grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+}
+@media (max-width:640px){
+    #tela-login{margin:30px auto!important}
+    #tela-login .card{padding:24px!important}
+    .grid-alunos,.grid-produtos{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .card-aluno,.card-produto{padding:18px 10px}
+    .grid-comportamentos{grid-template-columns:1fr}
+    .modal-overlay{padding:10px}
+    .modal-content{padding:22px 17px;border-radius:17px}
+    .box-pontos-relatorio{padding:22px 14px}
+    .box-pontos-relatorio h1{font-size:2.8rem}
+    .tabela-dados{display:block;overflow-x:auto;white-space:nowrap}
+    .tabela-dados th,.tabela-dados td{padding:10px}
+    main section [style*="grid-template-columns: 1fr 1fr"]{
+        grid-template-columns:1fr!important;
+    }
+}
+@media (max-width:400px){
+    .grid-alunos,.grid-produtos{grid-template-columns:1fr}
+    header{padding:0 13px}
+    .btn-logout{padding:8px 11px}
+}
+</style>
+</head>
+
+<body>
+
+    <!-- CABEÇALHO -->
+    <header>
+        <h1>🏆 Escola do Futuro</h1>
+        <div id="area-usuario" class="oculto">
+            <span id="nome-perfil"></span>
+            <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+        </div>
+    </header>
+
+    <!-- NAVEGAÇÕES -->
+    <div id="nav-professor" class="nav-sub-bar oculto">
+        <button id="btn-aba-turmas" class="btn-nav ativo" onclick="alternarAbaProfessor('turmas')">🏫 Minhas Turmas</button>
+        <button id="btn-aba-ocorrencias-prof" class="btn-nav" onclick="alternarAbaProfessor('ocorrencias')">📜 Ocorrências dos Alunos</button>
+        <button id="btn-aba-relatorios" class="btn-nav" onclick="alternarAbaProfessor('relatorios')">📊 Painel de Relatórios</button>
+        <button id="btn-aba-editar-perfil" class="btn-nav" onclick="alternarAbaProfessor('perfil')">✏️ Editar Meu Perfil</button>
+    </div>
+
+    <div id="nav-aluno" class="nav-sub-bar oculto">
+        <button id="btn-aba-aluno-inicio" class="btn-nav ativo" onclick="alternarAbaAluno('inicio')">🏠 Meu Painel</button>
+        <button id="btn-aba-aluno-loja" class="btn-nav" onclick="alternarAbaAluno('loja')">🛒 Loja de Recompensas</button>
+        <button id="btn-aba-aluno-avatar" class="btn-nav" onclick="alternarAbaAluno('avatar')">🎨 Escolher Meu Avatar</button>
+    </div>
+
+    <div id="nav-adm" class="nav-sub-bar oculto">
+        <button id="btn-adm-professores" class="btn-nav ativo" onclick="alternarAbaAdm('professores')">👨‍🏫 Cadastrar Professor</button>
+        <button id="btn-adm-turmas" class="btn-nav" onclick="alternarAbaAdm('turmas')">🏫 Cadastrar Turma</button>
+        <button id="btn-adm-alunos" class="btn-nav" onclick="alternarAbaAdm('alunos')">🎓 Alunos & Turmas</button>
+        <button id="btn-adm-loja" class="btn-nav" onclick="alternarAbaAdm('loja')">🎁 Gerenciar Loja</button>
+        <button id="btn-adm-pedidos" class="btn-nav" onclick="alternarAbaAdm('pedidos')">📦 Pedidos de Recompensas</button>
+    </div>
+
+    <!-- TELA DE LOGIN -->
+    <section id="tela-login" style="max-width: 400px; margin: 40px auto; width: 90%;">
+        <div class="card">
+            <h2 style="color: var(--azul-escuro); margin-bottom: 15px;">Acesso ao Sistema</h2>
+            <div class="form-group">
+                <label for="tipo-usuario">Selecione seu perfil:</label>
+                <select id="tipo-usuario" onchange="alternarCamposLogin()">
+                    <option value="professor">Professor</option>
+                    <option value="adm">Administrador (ADM)</option>
+                    <option value="aluno">Aluno</option>
+                    <option value="pai">Pai / Responsável</option>
+                </select>
+            </div>
+
+            <div id="campos-login-especificos">
+                <div class="form-group">
+                    <label id="label-usuario-login" for="login-identificador">Usuário do Professor:</label>
+                    <input type="text" id="login-identificador" placeholder="Digite seu usuário ou RA">
+                </div>
+                <div class="form-group">
+                    <label for="login-senha">Senha:</label>
+                    <input type="password" id="login-senha" placeholder="Digite sua senha">
+                </div>
+            </div>
+
+            <button class="btn-acao" onclick="fazerLogin()">Entrar</button>
+        </div>
+    </section>
+
+    <!-- PAINEL PRINCIPAL -->
+    <div id="painel-principal" class="app-container oculto">
+
+        <sidebar id="sidebar-turmas" class="oculto">
+            <h3>Suas Turmas</h3>
+            <div id="lista-turmas-sidebar" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+        </sidebar>
+
+        <main>
+            <!-- PROFESSOR: TURMAS -->
+            <section id="visao-professor" class="oculto">
+                <h2 id="titulo-turma-atual">Selecione uma turma</h2>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 4px;">Clique no card do aluno para lançar pontos, descontos ou ocorrências.</p>
+                <div id="grid-alunos-professor" class="grid-alunos"></div>
+            </section>
+
+            <!-- PROFESSOR: RELATÓRIO DE OCORRÊNCIAS COM FILTROS EM CASCATA -->
+            <section id="visao-ocorrencias-professor" class="oculto">
+                <div class="card">
+                    <h2>📜 Relatório de Ocorrências Lançadas por Você</h2>
+                    <p style="margin-bottom: 15px; color: #666;">Filtre primeiro por turma para depois selecionar um aluno específico.</p>
+
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label for="filtro-turma-ocorrencia-prof">1. Filtrar por Turma:</label>
+                            <select id="filtro-turma-ocorrencia-prof" onchange="aoMudarTurmaFiltroOcorrencias()"></select>
+                        </div>
+
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label for="filtro-aluno-ocorrencia-prof">2. Filtrar por Aluno:</label>
+                            <select id="filtro-aluno-ocorrencia-prof" onchange="carregarRelatorioOcorrenciasProfessor()"></select>
+                        </div>
+                    </div>
+
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aluno</th>
+                                <th>RA</th>
+                                <th>Turma</th>
+                                <th>Descrição da Ocorrência</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-ocorrencias-professor-corpo"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PROFESSOR: RELATÓRIOS GERAIS -->
+            <section id="visao-relatorio-professor" class="oculto">
+                <div class="card">
+                    <h2>📊 Painel de Relatórios dos Alunos</h2>
+                    <p style="margin-bottom: 15px; color: #666;">Selecione a turma para visualizar a pontuação de todos os alunos. Clique no aluno desejado para ver o histórico detalhado.</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label for="relatorio-select-turma">1. Selecione a Turma:</label>
+                            <select id="relatorio-select-turma" onchange="atualizarSelectAlunosRelatorio()"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="relatorio-select-aluno">2. Aluno Específico (Opcional):</label>
+                            <select id="relatorio-select-aluno" onchange="carregarRelatorioAluno()"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="card-tabela-alunos-relatorio" class="card oculto">
+                    <h3 style="margin-bottom: 10px;">📋 Visão Geral dos Alunos da Turma</h3>
+                    <table class="tabela-dados">
+                        <thead>
+                            <tr>
+                                <th>RA</th>
+                                <th>Nome do Aluno</th>
+                                <th>Pontuação Total</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-alunos-relatorio-corpo"></tbody>
+                    </table>
+                </div>
+
+                <div id="conteudo-relatorio-aluno" class="oculto">
+                    <div class="box-pontos-relatorio">
+                        <span id="relatorio-avatar-aluno" style="font-size: 3rem; display: block;">🐣</span>
+                        <h3 id="relatorio-nome-aluno">Nome do Aluno</h3>
+                        <p style="color: #555; margin-bottom: 10px;">RA: <span id="relatorio-ra-aluno"></span></p>
+                        <p>Pontuação Total Acumulada:</p>
+                        <h1 id="relatorio-pontos-aluno">0</h1>
+                    </div>
+
+                    <div class="card">
+                        <h3>📌 Histórico de Ocorrências e Resgates</h3>
+                        <div id="relatorio-lista-ocorrencias" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROFESSOR: EDITAR PERFIL -->
+            <section id="visao-perfil-professor" class="oculto">
+                <div class="card">
+                    <h2>✏️ Editar Perfil do Professor</h2>
+                    <p style="margin-bottom: 15px; color: #666;">Atualize seus dados pessoais e selecione as turmas em que você está lecionando.</p>
+
+                    <div class="form-group">
+                        <label for="edit-prof-nome">Seu Nome:</label>
+                        <input type="text" id="edit-prof-nome">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-prof-senha">Sua Senha:</label>
+                        <input type="password" id="edit-prof-senha">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Suas Turmas (Marque todas as turmas em que você dá aula):</label>
+                        <div id="lista-checkbox-turmas-prof" class="checkbox-group"></div>
+                    </div>
+
+                    <button class="btn-acao" onclick="salvarPerfilProfessor()">Salvar Alterações</button>
+                </div>
+            </section>
+
+            <!-- ADM -->
+            <section id="visao-adm" class="oculto">
+                <div id="adm-secao-professores">
+                    <div class="card">
+                        <h2>👨‍🏫 Cadastrar Novo Professor e Vincular Turmas</h2>
+                        <div class="form-group">
+                            <label for="adm-nome-prof">Nome do Professor:</label>
+                            <input type="text" id="adm-nome-prof" placeholder="Ex: Prof. Marcão">
+                        </div>
+                        <div class="form-group">
+                            <label for="adm-usuario-prof">Usuário para Login:</label>
+                            <input type="text" id="adm-usuario-prof" placeholder="Ex: prof.marcao">
+                        </div>
+                        <div class="form-group">
+                            <label for="adm-senha-prof">Senha:</label>
+                            <input type="password" id="adm-senha-prof" placeholder="Digite a senha">
+                        </div>
+                        <div class="form-group">
+                            <label>Selecione as Turmas deste Professor:</label>
+                            <div id="lista-checkbox-turmas" class="checkbox-group"></div>
+                        </div>
+                        <button class="btn-acao" onclick="cadastrarProfessor()">Cadastrar e Vincular Professor</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Professores Cadastrados</h3>
+                        <table class="tabela-dados">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Usuário</th>
+                                    <th>Turmas Vinculadas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-professores-corpo"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="adm-secao-turmas" class="oculto">
+                    <div class="card">
+                        <h2>🏫 Cadastrar Nova Turma</h2>
+                        <div class="form-group">
+                            <label for="adm-nome-turma">Nome da Turma:</label>
+                            <input type="text" id="adm-nome-turma" placeholder="Ex: 8º Ano B">
+                        </div>
+                        <button class="btn-acao" onclick="cadastrarTurma()">Salvar Nova Turma</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Turmas Existentes</h3>
+                        <ul id="lista-turmas-cadastradas" style="padding-left: 20px; line-height: 2;"></ul>
+                    </div>
+                </div>
+
+                <div id="adm-secao-alunos" class="oculto">
+                    <div class="card">
+                        <h2>🎓 Cadastrar Aluno, RA e Acesso do Pai</h2>
+                        <div class="form-group">
+                            <label for="adm-nome-aluno">Nome Completo do Aluno:</label>
+                            <input type="text" id="adm-nome-aluno" placeholder="Ex: Lucas Gabriel">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label for="adm-ra-aluno">RA do Aluno:</label>
+                                <input type="text" id="adm-ra-aluno" placeholder="Ex: 3001">
+                            </div>
+                            <div class="form-group">
+                                <label for="adm-senha-aluno">Senha do Aluno:</label>
+                                <input type="password" id="adm-senha-aluno" placeholder="Senha do aluno">
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label for="adm-usuario-pai">Usuário do Pai:</label>
+                                <input type="text" id="adm-usuario-pai" placeholder="Ex: pai.lucas">
+                            </div>
+                            <div class="form-group">
+                                <label for="adm-senha-pai">Senha do Pai:</label>
+                                <input type="password" id="adm-senha-pai" placeholder="Senha do pai">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adm-select-turma-aluno">Selecione a Turma do Aluno:</label>
+                            <select id="adm-select-turma-aluno"></select>
+                        </div>
+                        <button class="btn-acao" onclick="cadastrarAluno()">Cadastrar Aluno</button>
+                    </div>
+
+                    <div class="card">
+                        <h2>📋 Consulta de Alunos e Pontuações por Turma</h2>
+                        <div class="form-group" style="margin-top: 15px; max-width: 300px;">
+                            <label for="adm-filtro-turma-consulta">Escolha a Turma para Visualizar:</label>
+                            <select id="adm-filtro-turma-consulta" onchange="carregarAlunosPorTurmaAdm()"></select>
+                        </div>
+
+                        <table class="tabela-dados">
+                            <thead>
+                                <tr>
+                                    <th>RA</th>
+                                    <th>Nome do Aluno</th>
+                                    <th>Usuário Pai</th>
+                                    <th>Pontos Atuais</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-alunos-turma-corpo"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="adm-secao-loja" class="oculto">
+                    <div class="card">
+                        <h2 id="titulo-form-produto">🎁 Cadastrar Item na Loja de Recompensas</h2>
+                        <div class="form-group">
+                            <label for="adm-nome-produto">Nome do Item/Benefício:</label>
+                            <input type="text" id="adm-nome-produto" placeholder="Ex: Lata de Refrigerante">
+                        </div>
+                        <div class="form-group">
+                            <label for="adm-pontos-produto">Quantidade de Pontos Necessários:</label>
+                            <input type="number" id="adm-pontos-produto" placeholder="Ex: 100">
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="btn-salvar-produto" class="btn-acao" onclick="cadastrarOuAtualizarProduto()">Cadastrar Produto</button>
+                            <button id="btn-cancelar-edicao-produto" class="btn-acao btn-alerta oculto" onclick="cancelarEdicaoProduto()">Cancelar Edição</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Produtos Disponíveis na Loja</h3>
+                        <table class="tabela-dados">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Custo (Pontos)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-produtos-corpo"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="adm-secao-pedidos" class="oculto">
+                    <div class="card">
+                        <h2>📦 Relatório e Controle de Entregas</h2>
+                        <p style="margin-bottom: 15px; color: #666;">Acompanhe os itens resgatados pelos alunos e marque a entrega conforme providenciá-los.</p>
+
+                        <div class="form-group" style="max-width: 250px;">
+                            <label for="filtro-status-pedido">Filtrar por Status:</label>
+                            <select id="filtro-status-pedido" onchange="carregarTabelaPedidosAdm()">
+                                <option value="todos">Todos os Pedidos</option>
+                                <option value="pendente">Pendente (Em Aberto)</option>
+                                <option value="entregue">Entregue</option>
+                            </select>
+                        </div>
+
+                        <table class="tabela-dados">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Aluno</th>
+                                    <th>Turma</th>
+                                    <th>Item Resgatado</th>
+                                    <th>Pontos</th>
+                                    <th>Status</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-pedidos-corpo"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ALUNO / PAI -->
+            <section id="visao-aluno" class="oculto">
+                <div id="aluno-secao-inicio">
+                    <div class="card" style="text-align: center; background-color: var(--amarelo-claro);">
+                        <span id="exibir-avatar-aluno-painel" style="font-size: 4rem; display: block; margin-bottom: 5px;">🐣</span>
+                        <h3 id="exibir-nome-aluno-painel" style="color: #555;">Aluno</h3>
+                        <h2 style="margin-top: 10px;">Pontuação Total Disponível</h2>
+                        <h1 id="exibir-pontos-aluno" style="font-size: 3.5rem; color: var(--azul-escuro);">0</h1>
+                    </div>
+                    <div class="card">
+                        <h2>Histórico de Ocorrências e Resgates</h2>
+                        <div id="lista-ocorrencias-aluno" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+
+                <div id="aluno-secao-loja" class="oculto">
+                    <div class="card">
+                        <h2>🛒 Loja de Recompensas</h2>
+                        <p style="color: #666;">Use os seus pontos conquistados para resgatar os benefícios abaixo!</p>
+                        <div id="grid-produtos-aluno" class="grid-produtos"></div>
+                    </div>
+                </div>
+
+                <div id="aluno-secao-avatar" class="oculto">
+                    <div class="card">
+                        <h2>🎨 Escolha o seu Avatar</h2>
+                        <p style="margin-bottom: 15px; color: #666;">Clique em um dos emojis abaixo para defini-lo como seu personagem no sistema!</p>
+                        <div id="container-grid-avatars" class="grid-avatars"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL DE PONTUAÇÃO, DESCONTOS E OCORRÊNCIAS (PROFESSOR) -->
+    <div id="modal-aluno" class="modal-overlay oculto">
+        <div class="modal-content">
+            <span class="modal-fechar" onclick="fecharModalAluno()">&times;</span>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span id="modal-avatar" style="font-size: 3.5rem; display: block;">🐣</span>
+                <h2 id="modal-nome-aluno">Nome do Aluno</h2>
+                <p style="color: #666;">RA: <span id="modal-ra-aluno"></span></p>
+            </div>
+
+            <div class="box-pontos-relatorio" style="padding: 10px; margin-bottom: 10px;">
+                <p style="font-size: 0.9rem;">Pontuação Atual</p>
+                <h1 id="modal-pontos-aluno" style="font-size: 2.2rem;">0</h1>
+            </div>
+
+            <h4 style="margin-bottom: 5px; color: var(--verde);">➕ Somar Pontos (Comportamento Positivo):</h4>
+            <div class="grid-comportamentos">
+                <button class="btn-comportamento" onclick="adicionarComportamento(1, 'Participação')">✋ Participação (+1)</button>
+                <button class="btn-comportamento" onclick="adicionarComportamento(2, 'Tarefa')">📚 Tarefa (+2)</button>
+                <button class="btn-comportamento" onclick="adicionarComportamento(3, 'Trabalho em Equipe')">🤝 Trabalho em Equipe (+3)</button>
+                <button class="btn-comportamento" onclick="adicionarComportamento(1, 'Respeito')">⭐ Respeito (+1)</button>
+            </div>
+
+            <h4 style="margin-bottom: 5px; color: var(--vermelho);">➖ Descontar Pontos (Ocorrência Rápida):</h4>
+            <div class="grid-comportamentos">
+                <button class="btn-desconto" onclick="removerComportamento(1, 'Conversa paralela')">💬 Conversa (-1)</button>
+                <button class="btn-desconto" onclick="removerComportamento(2, 'Sem material')">🎒 Sem Material (-2)</button>
+                <button class="btn-desconto" onclick="removerComportamento(3, 'Uso indevido de celular')">📱 Celular (-3)</button>
+                <button class="btn-desconto" onclick="removerComportamento(1, 'Atraso na aula')">⏰ Atraso (-1)</button>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 15px;">
+                <label for="modal-input-ocorrencia">Registrar Ocorrência Personalizada:</label>
+                <textarea id="modal-input-ocorrencia" rows="2" placeholder="Ex: Atitude inadequada durante o intervalo."></textarea>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                    <label for="modal-input-desconto" style="margin: 0; white-space: nowrap; font-size: 0.9rem;">Pontos a descontar:</label>
+                    <input type="number" id="modal-input-desconto" min="0" value="0" style="width: 80px; padding: 5px;">
+                    <button class="btn-acao btn-perigo" style="flex: 1;" onclick="salvarNovaOcorrencia()">Salvar Ocorrência</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <h4 style="margin-bottom: 8px;">Histórico Recente:</h4>
+                <div id="modal-lista-ocorrencias" style="max-height: 100px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDIÇÃO COMPLETA DO ALUNO (ADM) -->
+    <div id="modal-editar-aluno" class="modal-overlay oculto">
+        <div class="modal-content">
+            <span class="modal-fechar" onclick="fecharModalEditarAluno()">&times;</span>
+            <h2 style="margin-bottom: 15px; color: var(--azul-escuro);">✏️ Editar Dados do Aluno</h2>
+            
+            <input type="hidden" id="edit-aluno-id">
+
+            <div class="form-group">
+                <label for="edit-aluno-nome">Nome Completo:</label>
+                <input type="text" id="edit-aluno-nome">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label for="edit-aluno-ra">RA do Aluno:</label>
+                    <input type="text" id="edit-aluno-ra">
+                </div>
+                <div class="form-group">
+                    <label for="edit-aluno-senha">Senha do Aluno:</label>
+                    <input type="password" id="edit-aluno-senha">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label for="edit-aluno-usuario-pai">Usuário do Pai:</label>
+                    <input type="text" id="edit-aluno-usuario-pai">
+                </div>
+                <div class="form-group">
+                    <label for="edit-aluno-senha-pai">Senha do Pai:</label>
+                    <input type="password" id="edit-aluno-senha-pai">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-aluno-turma">Turma:</label>
+                <select id="edit-aluno-turma"></select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-acao btn-sucesso" onclick="salvarEdicaoAluno()">Salvar Alterações</button>
+                <button class="btn-acao btn-perigo" onclick="fecharModalEditarAluno()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT INTEGRADO COM SUPABASE -->
+    <script>
+        // Configuração da Conexão com o Supabase
+        const SUPABASE_URL = 'https://hfdyswoyeyzpscrfpdim.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_uuX4hyIvNl6JeXy7-Pux3w_gQvxG-6r';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const listaAvataresDisponiveis = ["🐣", "🦁", "🚀", "⚽", "🎨", "🦊", "⭐", "🎮", "👑", "🦄", "🐶", "🐱", "🤖", "🦸‍♂️", "🧙‍♂️"];
+
+        let turmas = [];
+        let professores = [];
+        let alunos = [];
+        let produtos = [];
+        let pedidos = [];
+
+        let professorLogado = null;
+        let alunoLogado = null;
+        let alunoSelecionadoModal = null;
+        let turmaAtiva = "";
+        let produtoEmEdicaoId = null;
+
+        // CARREGAMENTO DE DADOS EM TEMPO REAL VIA SUPABASE
+        async function carregarDados() {
+            try {
+                // Carregar Alunos
+                const { data: dataAlunos, error: errAlunos } = await supabaseClient.from('students').select('*');
+                if (errAlunos) console.error('Erro ao carregar alunos:', errAlunos);
+                else alunos = dataAlunos.map(a => ({
+                    id: a.id,
+                    ra: a.registration_number,
+                    nome: a.full_name,
+                    senhaAluno: a.student_password || '123',
+                    usuarioPai: a.parent_username || '',
+                    senhaPai: a.parent_password || '',
+                    turma: a.grade_level,
+                    pontos: a.total_points || 0,
+                    avatar: a.avatar || '🐣',
+                    ocorrencias: a.incidents_json || []
+                }));
+
+                // Extrair lista de Turmas únicas
+                const turmasUnicas = [...new Set(alunos.map(a => a.turma))].filter(Boolean);
+                turmas = turmasUnicas.length > 0 ? turmasUnicas : ["3º Ano A", "7º Ano A"];
+
+                // Carregar Professores
+                const { data: dataProfs, error: errProfs } = await supabaseClient.from('teachers').select('*');
+                if (errProfs) console.error('Erro ao carregar professores:', errProfs);
+                else professores = dataProfs.map(p => ({
+                    id: p.id,
+                    nome: p.full_name,
+                    usuario: p.username || p.email,
+                    senha: p.password || '123',
+                    turmasAtribuidas: p.assigned_classes || []
+                }));
+
+                // Carregar Produtos
+                const { data: dataProds, error: errProds } = await supabaseClient.from('products').select('*');
+                if (errProds) console.error('Erro ao carregar produtos:', errProds);
+                else produtos = dataProds.map(p => ({
+                    id: p.id,
+                    nome: p.name || p.nome,
+                    pontos: p.points || p.pontos
+                }));
+
+                // Carregar Pedidos
+                const { data: dataPedidos, error: errPedidos } = await supabaseClient.from('orders').select('*');
+                if (!errPedidos && dataPedidos) {
+                    pedidos = dataPedidos.map(p => ({
+                        id: p.id,
+                        alunoId: p.student_id,
+                        alunoNome: p.student_name,
+                        alunoTurma: p.student_grade,
+                        produtoNome: p.product_name,
+                        pontosGastos: p.points_spent,
+                        data: p.created_at,
+                        entregue: p.delivered || false
+                    }));
+                }
+            } catch (err) {
+                console.error("Erro ao sincronizar com o Supabase:", err);
+            }
+        }
+
+        carregarDados();
+
+        function alternarCamposLogin() {
+            const perfil = document.getElementById('tipo-usuario').value;
+            const labelIdentificador = document.getElementById('label-usuario-login');
+
+            if (perfil === 'aluno') labelIdentificador.innerText = "RA do Aluno:";
+            else if (perfil === 'pai') labelIdentificador.innerText = "Usuário do Pai/Responsável:";
+            else if (perfil === 'professor') labelIdentificador.innerText = "Usuário do Professor:";
+            else labelIdentificador.innerText = "Usuário do ADM:";
+        }
+
+        async function fazerLogin() {
+            await carregarDados();
+
+            const perfil = document.getElementById('tipo-usuario').value;
+            const identificador = document.getElementById('login-identificador').value.trim();
+            const senha = document.getElementById('login-senha').value.trim();
+
+            if (perfil === 'adm') {
+                if (identificador === "admin" && senha === "admin") {
+                    exibirPainelPrincipal();
+                    document.getElementById('nome-perfil').innerText = "Perfil: Administrador (ADM)";
+                    document.getElementById('nav-adm').classList.remove('oculto');
+                    document.getElementById('visao-adm').classList.remove('oculto');
+                    alternarAbaAdm('professores');
+                } else {
+                    alert("Usuário ou senha do ADM incorretos! (Padrão: admin / admin)");
+                }
+            } else if (perfil === 'professor') {
+                const prof = professores.find(p => p.usuario && p.usuario.toLowerCase() === identificador.toLowerCase() && p.senha === senha);
+                if (prof) {
+                    professorLogado = prof;
+                    exibirPainelPrincipal();
+                    document.getElementById('nome-perfil').innerText = `Perfil: ${prof.nome}`;
+                    document.getElementById('nav-professor').classList.remove('oculto');
+                    document.getElementById('sidebar-turmas').classList.remove('oculto');
+                    alternarAbaProfessor('turmas');
+                } else {
+                    alert("Professor não encontrado ou senha inválida!");
+                }
+            } else if (perfil === 'aluno' || perfil === 'pai') {
+                const alunoEncontrado = alunos.find(a =>
+                    (perfil === 'aluno' && a.ra === identificador && a.senhaAluno === senha) ||
+                    (perfil === 'pai' && a.usuarioPai && a.usuarioPai.toLowerCase() === identificador.toLowerCase() && a.senhaPai === senha)
+                );
+
+                if (alunoEncontrado) {
+                    alunoLogado = alunoEncontrado;
+                    exibirPainelPrincipal();
+                    document.getElementById('nome-perfil').innerText = `Perfil: ${perfil === 'aluno' ? 'Aluno' : 'Pai'} (${alunoEncontrado.nome})`;
+                    document.getElementById('nav-aluno').classList.remove('oculto');
+                    document.getElementById('visao-aluno').classList.remove('oculto');
+                    alternarAbaAluno('inicio');
+                } else {
+                    alert("Dados do Aluno/Pai incorretos!");
+                }
+            }
+        }
+
+        function exibirPainelPrincipal() {
+            document.getElementById('tela-login').classList.add('oculto');
+            document.getElementById('painel-principal').classList.remove('oculto');
+            document.getElementById('area-usuario').classList.remove('oculto');
+        }
+
+        function fazerLogout() { location.reload(); }
+
+        /* MODAL POP-UP (NOTAS, DESCONTOS E OCORRÊNCIAS) */
+        function abrirModalAluno(idAluno) {
+            alunoSelecionadoModal = alunos.find(a => String(a.id) === String(idAluno));
+            if (!alunoSelecionadoModal) return;
+
+            document.getElementById('modal-avatar').innerText = alunoSelecionadoModal.avatar || "🐣";
+            document.getElementById('modal-nome-aluno').innerText = alunoSelecionadoModal.nome;
+            document.getElementById('modal-ra-aluno').innerText = alunoSelecionadoModal.ra;
+            document.getElementById('modal-pontos-aluno').innerText = alunoSelecionadoModal.pontos;
+            document.getElementById('modal-input-ocorrencia').value = "";
+            document.getElementById('modal-input-desconto').value = "0";
+
+            atualizarHistoricoOcorrenciasModal();
+            document.getElementById('modal-aluno').classList.remove('oculto');
+        }
+
+        function fecharModalAluno() {
+            document.getElementById('modal-aluno').classList.add('oculto');
+            alunoSelecionadoModal = null;
+            selecionarTurmaProfessor(turmaAtiva);
+        }
+
+        async function adicionarComportamento(pontos, rotulo) {
+            if (!alunoSelecionadoModal) return;
+
+            alunoSelecionadoModal.pontos += pontos;
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+
+            const novoItem = {
+                texto: `Pontuação: +${pontos} por "${rotulo}"`,
+                autor: professorLogado ? professorLogado.nome : "Sistema",
+                idProf: professorLogado ? professorLogado.id : null,
+                data: dataHoje
+            };
+
+            alunoSelecionadoModal.ocorrencias.unshift(novoItem);
+
+            await supabaseClient
+                .from('students')
+                .update({ 
+                    total_points: alunoSelecionadoModal.pontos,
+                    incidents_json: alunoSelecionadoModal.ocorrencias
+                })
+                .eq('id', alunoSelecionadoModal.id);
+
+            document.getElementById('modal-pontos-aluno').innerText = alunoSelecionadoModal.pontos;
+            atualizarHistoricoOcorrenciasModal();
+        }
+
+        async function removerComportamento(pontos, rotulo) {
+            if (!alunoSelecionadoModal) return;
+
+            alunoSelecionadoModal.pontos = Math.max(0, alunoSelecionadoModal.pontos - pontos);
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+
+            const novoItem = {
+                texto: `Ocorrência/Desconto: -${pontos} pt(s) por "${rotulo}"`,
+                autor: professorLogado ? professorLogado.nome : "Sistema",
+                idProf: professorLogado ? professorLogado.id : null,
+                data: dataHoje
+            };
+
+            alunoSelecionadoModal.ocorrencias.unshift(novoItem);
+
+            await supabaseClient
+                .from('students')
+                .update({ 
+                    total_points: alunoSelecionadoModal.pontos,
+                    incidents_json: alunoSelecionadoModal.ocorrencias
+                })
+                .eq('id', alunoSelecionadoModal.id);
+
+            document.getElementById('modal-pontos-aluno').innerText = alunoSelecionadoModal.pontos;
+            atualizarHistoricoOcorrenciasModal();
+        }
+
+        async function salvarNovaOcorrencia() {
+            if (!alunoSelecionadoModal) return;
+            const texto = document.getElementById('modal-input-ocorrencia').value.trim();
+            const pontosDesconto = parseInt(document.getElementById('modal-input-desconto').value) || 0;
+
+            if (!texto) return alert("Digite a descrição da ocorrência!");
+
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+
+            let descricaoFinal = texto;
+            if (pontosDesconto > 0) {
+                alunoSelecionadoModal.pontos = Math.max(0, alunoSelecionadoModal.pontos - pontosDesconto);
+                descricaoFinal += ` (-${pontosDesconto} pts)`;
+            }
+
+            const novaOcorrenciaObj = {
+                texto: descricaoFinal,
+                autor: professorLogado ? professorLogado.nome : "Sistema",
+                idProf: professorLogado ? professorLogado.id : null,
+                data: dataHoje
+            };
+
+            alunoSelecionadoModal.ocorrencias.unshift(novaOcorrenciaObj);
+
+            await supabaseClient
+                .from('students')
+                .update({ 
+                    total_points: alunoSelecionadoModal.pontos,
+                    incidents_json: alunoSelecionadoModal.ocorrencias
+                })
+                .eq('id', alunoSelecionadoModal.id);
+
+            document.getElementById('modal-input-ocorrencia').value = "";
+            document.getElementById('modal-input-desconto').value = "0";
+            document.getElementById('modal-pontos-aluno').innerText = alunoSelecionadoModal.pontos;
+
+            atualizarHistoricoOcorrenciasModal();
+            alert("Ocorrência registrada com sucesso!");
+        }
+
+        function atualizarHistoricoOcorrenciasModal() {
+            const container = document.getElementById('modal-lista-ocorrencias');
+            container.innerHTML = "";
+            if (alunoSelecionadoModal.ocorrencias.length === 0) {
+                container.innerHTML = "<small style='color:#777;'>Nenhuma ocorrência registrada.</small>";
+                return;
+            }
+            alunoSelecionadoModal.ocorrencias.forEach(oc => {
+                const desc = typeof oc === 'object' ? oc.texto : oc;
+                container.innerHTML += `<div class="item-ocorrencia" style="font-size:0.85rem; padding:6px 10px; margin-bottom:5px;">📌 ${desc}</div>`;
+            });
+        }
+
+        /* PAINEL DO PROFESSOR */
+        function alternarAbaProfessor(aba) {
+            document.getElementById('visao-professor').classList.add('oculto');
+            document.getElementById('visao-ocorrencias-professor').classList.add('oculto');
+            document.getElementById('visao-relatorio-professor').classList.add('oculto');
+            document.getElementById('visao-perfil-professor').classList.add('oculto');
+
+            document.getElementById('btn-aba-turmas').classList.remove('ativo');
+            document.getElementById('btn-aba-ocorrencias-prof').classList.remove('ativo');
+            document.getElementById('btn-aba-relatorios').classList.remove('ativo');
+            document.getElementById('btn-aba-editar-perfil').classList.remove('ativo');
+
+            if (aba === 'turmas') {
+                document.getElementById('visao-professor').classList.remove('oculto');
+                document.getElementById('btn-aba-turmas').classList.add('ativo');
+                document.getElementById('sidebar-turmas').classList.remove('oculto');
+                renderizarSidebarProfessor();
+            } else if (aba === 'ocorrencias') {
+                document.getElementById('visao-ocorrencias-professor').classList.remove('oculto');
+                document.getElementById('btn-aba-ocorrencias-prof').classList.add('ativo');
+                document.getElementById('sidebar-turmas').classList.add('oculto');
+
+                popularFiltroTurmasOcorrencias();
+                aoMudarTurmaFiltroOcorrencias();
+            } else if (aba === 'relatorios') {
+                document.getElementById('visao-relatorio-professor').classList.remove('oculto');
+                document.getElementById('btn-aba-relatorios').classList.add('ativo');
+                document.getElementById('sidebar-turmas').classList.add('oculto');
+                carregarSelectTurmasRelatorio();
+            } else if (aba === 'perfil') {
+                document.getElementById('visao-perfil-professor').classList.remove('oculto');
+                document.getElementById('btn-aba-editar-perfil').classList.add('ativo');
+                document.getElementById('sidebar-turmas').classList.add('oculto');
+                carregarEdicaoPerfilProfessor();
+            }
+        }
+
+        function popularFiltroTurmasOcorrencias() {
+            const selectTurma = document.getElementById('filtro-turma-ocorrencia-prof');
+            selectTurma.innerHTML = '<option value="todas">-- Todas as Turmas --</option>';
+
+            if (!professorLogado || !professorLogado.turmasAtribuidas) return;
+
+            professorLogado.turmasAtribuidas.forEach(turma => {
+                selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
+            });
+        }
+
+        function aoMudarTurmaFiltroOcorrencias() {
+            const turmaSelecionada = document.getElementById('filtro-turma-ocorrencia-prof').value;
+            const selectAluno = document.getElementById('filtro-aluno-ocorrencia-prof');
+
+            selectAluno.innerHTML = '<option value="todos">-- Todos os Alunos --</option>';
+
+            if (!professorLogado) return;
+
+            const alunosFiltrados = alunos.filter(a => {
+                const pertenceAoProf = professorLogado.turmasAtribuidas.includes(a.turma);
+                const pertenceATurma = (turmaSelecionada === 'todas' || a.turma === turmaSelecionada);
+                return pertenceAoProf && pertenceATurma;
+            });
+
+            alunosFiltrados.forEach(aluno => {
+                selectAluno.innerHTML += `<option value="${aluno.id}">${aluno.nome} (${aluno.turma})</option>`;
+            });
+
+            carregarRelatorioOcorrenciasProfessor();
+        }
+
+        function carregarRelatorioOcorrenciasProfessor() {
+            const corpoTabela = document.getElementById('tabela-ocorrencias-professor-corpo');
+            const turmaSelecionada = document.getElementById('filtro-turma-ocorrencia-prof').value;
+            const idAlunoSelecionado = document.getElementById('filtro-aluno-ocorrencia-prof').value;
+
+            corpoTabela.innerHTML = "";
+
+            if (!professorLogado) {
+                corpoTabela.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Nenhum professor identificado.</td></tr>";
+                return;
+            }
+
+            let contadorOcorrencias = 0;
+
+            alunos.forEach(aluno => {
+                const pertenceAoProf = professorLogado.turmasAtribuidas.includes(aluno.turma);
+                const passaTurma = (turmaSelecionada === 'todas' || aluno.turma === turmaSelecionada);
+                const passaAluno = (idAlunoSelecionado === 'todos' || String(aluno.id) === String(idAlunoSelecionado));
+
+                if (pertenceAoProf && passaTurma && passaAluno) {
+                    aluno.ocorrencias.forEach(oc => {
+                        const pertenceAoProfessor = (typeof oc === 'object')
+                            ? (oc.idProf === professorLogado.id || oc.autor === professorLogado.nome)
+                            : false;
+
+                        if (pertenceAoProfessor) {
+                            contadorOcorrencias++;
+                            corpoTabela.innerHTML += `
+                                <tr>
+                                    <td>${oc.data || 'N/A'}</td>
+                                    <td><strong>${aluno.nome}</strong></td>
+                                    <td><code>${aluno.ra}</code></td>
+                                    <td>${aluno.turma}</td>
+                                    <td>${oc.texto}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                }
+            });
+
+            if (contadorOcorrencias === 0) {
+                corpoTabela.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #777; padding: 15px;">
+                            Nenhuma ocorrência encontrada para o filtro selecionado.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function renderizarSidebarProfessor() {
+            const container = document.getElementById('lista-turmas-sidebar');
+            container.innerHTML = "";
+
+            if (!professorLogado || !professorLogado.turmasAtribuidas || professorLogado.turmasAtribuidas.length === 0) {
+                container.innerHTML = "<small style='color:#777;'>Nenhuma turma vinculada a você.</small>";
+                document.getElementById('titulo-turma-atual').innerText = "Nenhuma turma disponível";
+                document.getElementById('grid-alunos-professor').innerHTML = "";
+                return;
+            }
+
+            if (!turmaAtiva || !professorLogado.turmasAtribuidas.includes(turmaAtiva)) {
+                turmaAtiva = professorLogado.turmasAtribuidas[0];
+            }
+
+            professorLogado.turmasAtribuidas.forEach(turma => {
+                const ativaClass = turma === turmaAtiva ? 'ativa' : '';
+                container.innerHTML += `
+                    <div class="item-turma ${ativaClass}" onclick="selecionarTurmaProfessor('${turma}')">
+                        🏫 ${turma}
+                    </div>
+                `;
+            });
+
+            selecionarTurmaProfessor(turmaAtiva);
+        }
+
+        function selecionarTurmaProfessor(nomeTurma) {
+            turmaAtiva = nomeTurma;
+
+            const elementosTurma = document.querySelectorAll('.item-turma');
+            elementosTurma.forEach(elem => {
+                if (elem.innerText.includes(nomeTurma)) elem.classList.add('ativa');
+                else elem.classList.remove('ativa');
+            });
+
+            document.getElementById('titulo-turma-atual').innerText = `Turma: ${nomeTurma}`;
+
+            const grid = document.getElementById('grid-alunos-professor');
+            grid.innerHTML = "";
+
+            const alunosDaTurma = alunos.filter(a => a.turma === turmaAtiva);
+
+            if (alunosDaTurma.length === 0) {
+                grid.innerHTML = "<p style='color:#666;'>Nenhum aluno cadastrado nesta turma ainda.</p>";
+                return;
+            }
+
+            alunosDaTurma.forEach(aluno => {
+                const avatarExibir = aluno.avatar || "🐣";
+                grid.innerHTML += `
+                    <div class="card-aluno" onclick="abrirModalAluno('${aluno.id}')">
+                        <span class="badge-pontos">${aluno.pontos}</span>
+                        <span style="font-size: 2.2rem; display:block; margin-bottom: 5px;">${avatarExibir}</span>
+                        <strong>${aluno.nome}</strong><br>
+                        <small style="color:#666;">RA: ${aluno.ra}</small>
+                    </div>
+                `;
+            });
+        }
+
+        function carregarEdicaoPerfilProfessor() {
+            if (!professorLogado) return;
+
+            document.getElementById('edit-prof-nome').value = professorLogado.nome;
+            document.getElementById('edit-prof-senha').value = professorLogado.senha;
+
+            const container = document.getElementById('lista-checkbox-turmas-prof');
+            container.innerHTML = "";
+
+            turmas.forEach(t => {
+                const marcada = professorLogado.turmasAtribuidas.includes(t) ? "checked" : "";
+                container.innerHTML += `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="chk-prof-edit-${t}" value="${t}" ${marcada}>
+                        <label for="chk-prof-edit-${t}" style="font-weight: normal; margin:0;">${t}</label>
+                    </div>
+                `;
+            });
+        }
+
+        async function salvarPerfilProfessor() {
+            const novoNome = document.getElementById('edit-prof-nome').value.trim();
+            const novaSenha = document.getElementById('edit-prof-senha').value.trim();
+
+            if (!novoNome || !novaSenha) return alert("Preencha o nome e a senha!");
+
+            const turmasSelecionadas = [];
+            turmas.forEach(t => {
+                const chk = document.getElementById(`chk-prof-edit-${t}`);
+                if (chk && chk.checked) turmasSelecionadas.push(t);
+            });
+
+            professorLogado.nome = novoNome;
+            professorLogado.senha = novaSenha;
+            professorLogado.turmasAtribuidas = turmasSelecionadas;
+
+            await supabaseClient
+                .from('teachers')
+                .update({ 
+                    full_name: novoNome, 
+                    password: novaSenha, 
+                    assigned_classes: turmasSelecionadas 
+                })
+                .eq('id', professorLogado.id);
+
+            document.getElementById('nome-perfil').innerText = `Perfil: ${novoNome}`;
+            alert("Perfil e turmas atualizados com sucesso!");
+            alternarAbaProfessor('turmas');
+        }
+
+        /* PAINEL DO ALUNO */
+        function alternarAbaAluno(aba) {
+            document.getElementById('aluno-secao-inicio').classList.add('oculto');
+            document.getElementById('aluno-secao-loja').classList.add('oculto');
+            document.getElementById('aluno-secao-avatar').classList.add('oculto');
+
+            document.getElementById('btn-aba-aluno-inicio').classList.remove('ativo');
+            document.getElementById('btn-aba-aluno-loja').classList.remove('ativo');
+            document.getElementById('btn-aba-aluno-avatar').classList.remove('ativo');
+
+            if (aba === 'inicio') {
+                document.getElementById('aluno-secao-inicio').classList.remove('oculto');
+                document.getElementById('btn-aba-aluno-inicio').classList.add('ativo');
+                carregarInicioAluno();
+            } else if (aba === 'loja') {
+                document.getElementById('aluno-secao-loja').classList.remove('oculto');
+                document.getElementById('btn-aba-aluno-loja').classList.add('ativo');
+                carregarLojaAluno();
+            } else if (aba === 'avatar') {
+                document.getElementById('aluno-secao-avatar').classList.remove('oculto');
+                document.getElementById('btn-aba-aluno-avatar').classList.add('ativo');
+                renderizarOpcoesAvatar();
+            }
+        }
+
+        function carregarInicioAluno() {
+            if (!alunoLogado) return;
+
+            document.getElementById('exibir-avatar-aluno-painel').innerText = alunoLogado.avatar || "🐣";
+            document.getElementById('exibir-nome-aluno-painel').innerText = alunoLogado.nome;
+            document.getElementById('exibir-pontos-aluno').innerText = alunoLogado.pontos;
+
+            const lista = document.getElementById('lista-ocorrencias-aluno');
+            lista.innerHTML = alunoLogado.ocorrencias.length === 0 ? "<p style='color:#777;'>Nenhuma ocorrência registrada.</p>" : "";
+            alunoLogado.ocorrencias.forEach(oc => {
+                const textoExibir = typeof oc === 'object' ? oc.texto : oc;
+                lista.innerHTML += `<div class="item-ocorrencia">📌 ${textoExibir}</div>`;
+            });
+        }
+
+        function carregarLojaAluno() {
+            const grid = document.getElementById('grid-produtos-aluno');
+            grid.innerHTML = "";
+
+            if (produtos.length === 0) {
+                grid.innerHTML = "<p style='color:#666;'>Nenhum item disponível na loja no momento.</p>";
+                return;
+            }
+
+            produtos.forEach(prod => {
+                const podeComprar = alunoLogado.pontos >= prod.pontos;
+                grid.innerHTML += `
+                    <div class="card-produto">
+                        <span style="font-size: 2.5rem; display:block;">🎁</span>
+                        <h3 style="margin: 8px 0;">${prod.nome}</h3>
+                        <p style="color: var(--azul-escuro); font-weight: bold; font-size: 1.1rem; margin-bottom: 12px;">${prod.pontos} pontos</p>
+                        <button class="btn-acao ${podeComprar ? 'btn-sucesso' : ''}" 
+                                ${podeComprar ? '' : 'disabled style="opacity:0.5; cursor:not-allowed;"'} 
+                                onclick="resgatarProduto('${prod.id}')">
+                            ${podeComprar ? 'Resgatar' : 'Pontos Insuficientes'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        async function resgatarProduto(idProduto) {
+            const produto = produtos.find(p => String(p.id) === String(idProduto));
+            if (!produto || !alunoLogado) return;
+
+            if (alunoLogado.pontos < produto.pontos) {
+                return alert("Você não possui pontos suficientes para resgatar este item!");
+            }
+
+            if (confirm(`Deseja resgatar "${produto.nome}" por ${produto.pontos} pontos?`)) {
+                alunoLogado.pontos -= produto.pontos;
+
+                const dataAtual = new Date().toLocaleDateString('pt-BR');
+                alunoLogado.ocorrencias.unshift({
+                    texto: `Resgate de Prêmio: "${produto.nome}" (-${produto.pontos} pts) em ${dataAtual}`,
+                    autor: "Sistema",
+                    idProf: null,
+                    data: dataAtual
+                });
+
+                await supabaseClient
+                    .from('students')
+                    .update({
+                        total_points: alunoLogado.pontos,
+                        incidents_json: alunoLogado.ocorrencias
+                    })
+                    .eq('id', alunoLogado.id);
+
+                await supabaseClient
+                    .from('orders')
+                    .insert([{
+                        student_id: alunoLogado.id,
+                        student_name: alunoLogado.nome,
+                        student_grade: alunoLogado.turma,
+                        product_name: produto.nome,
+                        points_spent: produto.pontos,
+                        delivered: false
+                    }]);
+
+                alert(`Parabéns! Você resgatou "${produto.nome}". O pedido foi enviado ao Administrador para entrega!`);
+                carregarLojaAluno();
+            }
+        }
+
+        function renderizarOpcoesAvatar() {
+            const container = document.getElementById('container-grid-avatars');
+            container.innerHTML = "";
+
+            listaAvataresDisponiveis.forEach(emoji => {
+                const selecionadoClass = (alunoLogado && alunoLogado.avatar === emoji) ? "selecionado" : "";
+                container.innerHTML += `
+                    <div class="card-avatar-opcao ${selecionadoClass}" onclick="selecionarAvatar('${emoji}')">
+                        ${emoji}
+                    </div>
+                `;
+            });
+        }
+
+        async function selecionarAvatar(emojiEscolhido) {
+            if (!alunoLogado) return;
+            alunoLogado.avatar = emojiEscolhido;
+
+            await supabaseClient
+                .from('students')
+                .update({ avatar: emojiEscolhido })
+                .eq('id', alunoLogado.id);
+
+            alert(`Avatar alterado com sucesso para ${emojiEscolhido}!`);
+            renderizarOpcoesAvatar();
+        }
+
+        /* PAINEL ADMINISTRATIVO (ADM) */
+        function alternarAbaAdm(aba) {
+            document.getElementById('adm-secao-professores').classList.add('oculto');
+            document.getElementById('adm-secao-turmas').classList.add('oculto');
+            document.getElementById('adm-secao-alunos').classList.add('oculto');
+            document.getElementById('adm-secao-loja').classList.add('oculto');
+            document.getElementById('adm-secao-pedidos').classList.add('oculto');
+
+            document.getElementById('btn-adm-professores').classList.remove('ativo');
+            document.getElementById('btn-adm-turmas').classList.remove('ativo');
+            document.getElementById('btn-adm-alunos').classList.remove('ativo');
+            document.getElementById('btn-adm-loja').classList.remove('ativo');
+            document.getElementById('btn-adm-pedidos').classList.remove('ativo');
+
+            if (aba === 'professores') {
+                document.getElementById('adm-secao-professores').classList.remove('oculto');
+                document.getElementById('btn-adm-professores').classList.add('ativo');
+                carregarCheckboxesTurmasAdm();
+                carregarTabelaProfessores();
+            } else if (aba === 'turmas') {
+                document.getElementById('adm-secao-turmas').classList.remove('oculto');
+                document.getElementById('btn-adm-turmas').classList.add('ativo');
+                carregarListaTurmasAdm();
+            } else if (aba === 'alunos') {
+                document.getElementById('adm-secao-alunos').classList.remove('oculto');
+                document.getElementById('btn-adm-alunos').classList.add('ativo');
+                carregarSelectTurmasAlunosAdm();
+                carregarSelectFiltroTurmasConsultaAdm();
+            } else if (aba === 'loja') {
+                document.getElementById('adm-secao-loja').classList.remove('oculto');
+                document.getElementById('btn-adm-loja').classList.add('ativo');
+                carregarTabelaProdutosAdm();
+            } else if (aba === 'pedidos') {
+                document.getElementById('adm-secao-pedidos').classList.remove('oculto');
+                document.getElementById('btn-adm-pedidos').classList.add('ativo');
+                carregarTabelaPedidosAdm();
+            }
+        }
+
+        function carregarCheckboxesTurmasAdm() {
+            const container = document.getElementById('lista-checkbox-turmas');
+            container.innerHTML = "";
+            turmas.forEach(t => {
+                container.innerHTML += `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="chk-${t}" value="${t}">
+                        <label for="chk-${t}" style="font-weight: normal; margin:0;">${t}</label>
+                    </div>
+                `;
+            });
+        }
+
+        async function cadastrarProfessor() {
+            const nome = document.getElementById('adm-nome-prof').value.trim();
+            const usuario = document.getElementById('adm-usuario-prof').value.trim();
+            const senha = document.getElementById('adm-senha-prof').value.trim();
+
+            const turmasSelecionadas = [];
+            turmas.forEach(t => {
+                const chk = document.getElementById(`chk-${t}`);
+                if (chk && chk.checked) turmasSelecionadas.push(t);
+            });
+
+            if (!nome || !usuario || !senha) return alert("Preencha todos os campos do professor!");
+
+            const { error } = await supabaseClient
+                .from('teachers')
+                .insert([{
+                    full_name: nome,
+                    username: usuario,
+                    password: senha,
+                    assigned_classes: turmasSelecionadas
+                }]);
+
+            if (error) {
+                alert("Erro ao cadastrar professor: " + error.message);
+                return;
+            }
+
+            alert(`Professor ${nome} cadastrado com sucesso!`);
+            document.getElementById('adm-nome-prof').value = "";
+            document.getElementById('adm-usuario-prof').value = "";
+            document.getElementById('adm-senha-prof').value = "";
+
+            await carregarDados();
+            carregarCheckboxesTurmasAdm();
+            carregarTabelaProfessores();
+        }
+
+        function carregarTabelaProfessores() {
+            const corpo = document.getElementById('tabela-professores-corpo');
+            corpo.innerHTML = "";
+            professores.forEach(p => {
+                const listaTurmasStr = p.turmasAtribuidas.length > 0 ? p.turmasAtribuidas.join(", ") : "<em>Nenhuma turma</em>";
+                corpo.innerHTML += `
+                    <tr>
+                        <td><strong>${p.nome}</strong></td>
+                        <td><code>${p.usuario}</code></td>
+                        <td>${listaTurmasStr}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function cadastrarTurma() {
+            const nomeTurma = document.getElementById('adm-nome-turma').value.trim();
+            if (!nomeTurma) return alert("Digite o nome da turma!");
+            if (turmas.includes(nomeTurma)) return alert("Esta turma já existe!");
+
+            turmas.push(nomeTurma);
+            alert(`Turma ${nomeTurma} criada com sucesso!`);
+            document.getElementById('adm-nome-turma').value = "";
+            carregarListaTurmasAdm();
+        }
+
+        function carregarListaTurmasAdm() {
+            const lista = document.getElementById('lista-turmas-cadastradas');
+            lista.innerHTML = "";
+            turmas.forEach(t => lista.innerHTML += `<li><strong>${t}</strong></li>`);
+        }
+
+        function carregarSelectTurmasAlunosAdm() {
+            const select = document.getElementById('adm-select-turma-aluno');
+            select.innerHTML = "";
+            turmas.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+        }
+
+        function carregarSelectFiltroTurmasConsultaAdm() {
+            const select = document.getElementById('adm-filtro-turma-consulta');
+            select.innerHTML = "";
+            turmas.forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
+            carregarAlunosPorTurmaAdm();
+        }
+
+        function carregarAlunosPorTurmaAdm() {
+            const turmaSelecionada = document.getElementById('adm-filtro-turma-consulta').value;
+            const corpo = document.getElementById('tabela-alunos-turma-corpo');
+            corpo.innerHTML = "";
+
+            if (!turmaSelecionada) {
+                corpo.innerHTML = "<tr><td colspan='5'>Nenhuma turma selecionada.</td></tr>";
+                return;
+            }
+
+            const alunosDaTurma = alunos.filter(a => a.turma === turmaSelecionada);
+
+            if (alunosDaTurma.length === 0) {
+                corpo.innerHTML = "<tr><td colspan='5' style='text-align:center; color:#777;'>Nenhum aluno cadastrado nesta turma.</td></tr>";
+                return;
+            }
+
+            alunosDaTurma.forEach(aluno => {
+                corpo.innerHTML += `
+                    <tr>
+                        <td><code>${aluno.ra}</code></td>
+                        <td><strong>${aluno.avatar || '🐣'} ${aluno.nome}</strong></td>
+                        <td><code>${aluno.usuarioPai}</code></td>
+                        <td><strong style="color: var(--azul-escuro);">${aluno.pontos} pts</strong></td>
+                        <td>
+                            <button class="btn-editar" onclick="abrirModalEditarAluno('${aluno.id}')">✏️ Editar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function cadastrarAluno() {
+            const nome = document.getElementById('adm-nome-aluno').value.trim();
+            const ra = document.getElementById('adm-ra-aluno').value.trim();
+            const senhaAluno = document.getElementById('adm-senha-aluno').value.trim();
+            const usuarioPai = document.getElementById('adm-usuario-pai').value.trim();
+            const senhaPai = document.getElementById('adm-senha-pai').value.trim();
+            const turma = document.getElementById('adm-select-turma-aluno').value;
+
+            if (!nome || !ra || !senhaAluno || !usuarioPai || !senhaPai) return alert("Preencha todos os campos!");
+
+            const { error } = await supabaseClient
+                .from('students')
+                .insert([{
+                    full_name: nome,
+                    registration_number: ra,
+                    student_password: senhaAluno,
+                    parent_username: usuarioPai,
+                    parent_password: senhaPai,
+                    grade_level: turma,
+                    total_points: 0,
+                    avatar: "🐣",
+                    incidents_json: []
+                }]);
+
+            if (error) {
+                alert("Erro ao cadastrar aluno: " + error.message);
+                return;
+            }
+
+            alert(`Aluno ${nome} cadastrado com sucesso!`);
+            document.getElementById('adm-nome-aluno').value = "";
+            document.getElementById('adm-ra-aluno').value = "";
+            document.getElementById('adm-senha-aluno').value = "";
+            document.getElementById('adm-usuario-pai').value = "";
+            document.getElementById('adm-senha-pai').value = "";
+
+            await carregarDados();
+            carregarAlunosPorTurmaAdm();
+        }
+
+        /* EDIÇÃO DE ALUNO (ADM) */
+        function abrirModalEditarAluno(idAluno) {
+            const aluno = alunos.find(a => String(a.id) === String(idAluno));
+            if (!aluno) return;
+
+            document.getElementById('edit-aluno-id').value = aluno.id;
+            document.getElementById('edit-aluno-nome').value = aluno.nome;
+            document.getElementById('edit-aluno-ra').value = aluno.ra;
+            document.getElementById('edit-aluno-senha').value = aluno.senhaAluno;
+            document.getElementById('edit-aluno-usuario-pai').value = aluno.usuarioPai;
+            document.getElementById('edit-aluno-senha-pai').value = aluno.senhaPai;
+
+            // Popular select de turmas na edição
+            const selectTurma = document.getElementById('edit-aluno-turma');
+            selectTurma.innerHTML = "";
+            turmas.forEach(t => {
+                const selected = t === aluno.turma ? "selected" : "";
+                selectTurma.innerHTML += `<option value="${t}" ${selected}>${t}</option>`;
+            });
+
+            document.getElementById('modal-editar-aluno').classList.remove('oculto');
+        }
+
+        function fecharModalEditarAluno() {
+            document.getElementById('modal-editar-aluno').classList.add('oculto');
+        }
+
+        async function salvarEdicaoAluno() {
+            const id = document.getElementById('edit-aluno-id').value;
+            const nome = document.getElementById('edit-aluno-nome').value.trim();
+            const ra = document.getElementById('edit-aluno-ra').value.trim();
+            const senhaAluno = document.getElementById('edit-aluno-senha').value.trim();
+            const usuarioPai = document.getElementById('edit-aluno-usuario-pai').value.trim();
+            const senhaPai = document.getElementById('edit-aluno-senha-pai').value.trim();
+            const turma = document.getElementById('edit-aluno-turma').value;
+
+            if (!nome || !ra || !senhaAluno || !usuarioPai || !senhaPai) {
+                return alert("Preencha todos os campos do aluno!");
+            }
+
+            const { error } = await supabaseClient
+                .from('students')
+                .update({
+                    full_name: nome,
+                    registration_number: ra,
+                    student_password: senhaAluno,
+                    parent_username: usuarioPai,
+                    parent_password: senhaPai,
+                    grade_level: turma
+                })
+                .eq('id', id);
+
+            if (error) {
+                alert("Erro ao atualizar dados do aluno: " + error.message);
+                return;
+            }
+
+            alert("Dados do aluno atualizados com sucesso!");
+            fecharModalEditarAluno();
+            await carregarDados();
+            carregarAlunosPorTurmaAdm();
+        }
+
+        /* GESTÃO DA LOJA, EDIÇÃO E PEDIDOS (ADM) */
+        async function cadastrarOuAtualizarProduto() {
+            const nome = document.getElementById('adm-nome-produto').value.trim();
+            const pontos = parseInt(document.getElementById('adm-pontos-produto').value);
+
+            if (!nome || isNaN(pontos) || pontos <= 0) {
+                return alert("Preencha o nome do item e um valor de pontos válido!");
+            }
+
+            if (produtoEmEdicaoId) {
+                await supabaseClient
+                    .from('products')
+                    .update({ name: nome, points: pontos })
+                    .eq('id', produtoEmEdicaoId);
+                alert(`Item "${nome}" atualizado com sucesso!`);
+            } else {
+                await supabaseClient
+                    .from('products')
+                    .insert([{ name: nome, points: pontos }]);
+                alert(`Item "${nome}" cadastrado com sucesso!`);
+            }
+
+            await carregarDados();
+            cancelarEdicaoProduto();
+            carregarTabelaProdutosAdm();
+        }
+
+        function prepararEdicaoProduto(idProduto) {
+            const produto = produtos.find(p => String(p.id) === String(idProduto));
+            if (!produto) return;
+
+            produtoEmEdicaoId = produto.id;
+            document.getElementById('adm-nome-produto').value = produto.nome;
+            document.getElementById('adm-pontos-produto').value = produto.pontos;
+
+            document.getElementById('titulo-form-produto').innerText = "✏️ Editar Item da Loja";
+            document.getElementById('btn-salvar-produto').innerText = "Salvar Alterações";
+            document.getElementById('btn-cancelar-edicao-produto').classList.remove('oculto');
+        }
+
+        function cancelarEdicaoProduto() {
+            produtoEmEdicaoId = null;
+            document.getElementById('adm-nome-produto').value = "";
+            document.getElementById('adm-pontos-produto').value = "";
+
+            document.getElementById('titulo-form-produto').innerText = "🎁 Cadastrar Item na Loja de Recompensas";
+            document.getElementById('btn-salvar-produto').innerText = "Cadastrar Produto";
+            document.getElementById('btn-cancelar-edicao-produto').classList.add('oculto');
+        }
+
+        function carregarTabelaProdutosAdm() {
+            const corpo = document.getElementById('tabela-produtos-corpo');
+            corpo.innerHTML = "";
+
+            if (produtos.length === 0) {
+                corpo.innerHTML = "<tr><td colspan='3'>Nenhum produto cadastrado.</td></tr>";
+                return;
+            }
+
+            produtos.forEach(prod => {
+                corpo.innerHTML += `
+                    <tr>
+                        <td><strong>${prod.nome}</strong></td>
+                        <td><span style="color: var(--azul-escuro); font-weight: bold;">${prod.pontos} pts</span></td>
+                        <td>
+                            <button class="btn-editar" onclick="prepararEdicaoProduto('${prod.id}')">✏️ Editar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function carregarTabelaPedidosAdm() {
+            const filtro = document.getElementById('filtro-status-pedido').value;
+            const corpo = document.getElementById('tabela-pedidos-corpo');
+            corpo.innerHTML = "";
+
+            let pedidosFiltrados = pedidos;
+            if (filtro === 'pendente') pedidosFiltrados = pedidos.filter(p => !p.entregue);
+            else if (filtro === 'entregue') pedidosFiltrados = pedidos.filter(p => p.entregue);
+
+            if (pedidosFiltrados.length === 0) {
+                corpo.innerHTML = "<tr><td colspan='7' style='text-align:center; color:#777;'>Nenhum pedido encontrado.</td></tr>";
+                return;
+            }
+
+            pedidosFiltrados.forEach(p => {
+                const statusBadge = p.entregue
+                    ? `<span class="badge-status status-entregue">Entregue</span>`
+                    : `<span class="badge-status status-pendente">Em Aberto</span>`;
+
+                const botaoAcao = p.entregue
+                    ? `<button class="btn-acao btn-alerta" style="padding:4px 8px; font-size:0.8rem;" onclick="alternarStatusPedido('${p.id}')">Desfazer</button>`
+                    : `<button class="btn-acao btn-sucesso" style="padding:4px 8px; font-size:0.8rem;" onclick="alternarStatusPedido('${p.id}')">Marcar Entregue</button>`;
+
+                corpo.innerHTML += `
+                    <tr>
+                        <td>${p.data || 'N/A'}</td>
+                        <td><strong>${p.alunoNome}</strong></td>
+                        <td>${p.alunoTurma}</td>
+                        <td>${p.produtoNome}</td>
+                        <td>${p.pontosGastos} pts</td>
+                        <td>${statusBadge}</td>
+                        <td>${botaoAcao}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function alternarStatusPedido(idPedido) {
+            const pedido = pedidos.find(p => String(p.id) === String(idPedido));
+            if (!pedido) return;
+
+            pedido.entregue = !pedido.entregue;
+
+            await supabaseClient
+                .from('orders')
+                .update({ delivered: pedido.entregue })
+                .eq('id', pedido.id);
+
+            carregarTabelaPedidosAdm();
+        }
+
+        /* PAINEL DE RELATÓRIO GERAL DO PROFESSOR */
+        function carregarSelectTurmasRelatorio() {
+            const selectTurma = document.getElementById('relatorio-select-turma');
+            selectTurma.innerHTML = "<option value=''>-- Selecione uma Turma --</option>";
+            const turmasParaExibir = professorLogado ? professorLogado.turmasAtribuidas : turmas;
+
+            turmasParaExibir.forEach(t => selectTurma.innerHTML += `<option value="${t}">${t}</option>`);
+            document.getElementById('card-tabela-alunos-relatorio').classList.add('oculto');
+            document.getElementById('conteudo-relatorio-aluno').classList.add('oculto');
+        }
+
+        function atualizarSelectAlunosRelatorio() {
+            const turmaSelecionada = document.getElementById('relatorio-select-turma').value;
+            const selectAluno = document.getElementById('relatorio-select-aluno');
+            const cardTabela = document.getElementById('card-tabela-alunos-relatorio');
+            const corpoTabela = document.getElementById('tabela-alunos-relatorio-corpo');
+
+            selectAluno.innerHTML = "<option value=''>-- Todos os Alunos --</option>";
+            document.getElementById('conteudo-relatorio-aluno').classList.add('oculto');
+            corpoTabela.innerHTML = "";
+
+            if (!turmaSelecionada) {
+                cardTabela.classList.add('oculto');
+                return;
+            }
+
+            const alunosDaTurma = alunos.filter(a => a.turma === turmaSelecionada);
+
+            if (alunosDaTurma.length === 0) {
+                cardTabela.classList.remove('oculto');
+                corpoTabela.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#777;'>Nenhum aluno cadastrado nesta turma.</td></tr>";
+                return;
+            }
+
+            alunosDaTurma.forEach(a => {
+                selectAluno.innerHTML += `<option value="${a.id}">${a.nome} (RA: ${a.ra})</option>`;
+
+                corpoTabela.innerHTML += `
+                    <tr class="linha-clicavel" onclick="selecionarAlunoPorIdRelatorio('${a.id}')">
+                        <td><code>${a.ra}</code></td>
+                        <td><strong>${a.avatar || '🐣'} ${a.nome}</strong></td>
+                        <td><strong style="color: var(--azul-escuro); font-size:1.05rem;">${a.pontos} pts</strong></td>
+                        <td><button class="btn-nav" style="padding: 4px 10px; font-size: 0.8rem;">Ver Histórico</button></td>
+                    </tr>
+                `;
+            });
+
+            cardTabela.classList.remove('oculto');
+        }
+
+        function selecionarAlunoPorIdRelatorio(idAluno) {
+            document.getElementById('relatorio-select-aluno').value = idAluno;
+            carregarRelatorioAluno();
+        }
+
+        function carregarRelatorioAluno() {
+            const idAlunoStr = document.getElementById('relatorio-select-aluno').value;
+
+            if (!idAlunoStr) {
+                document.getElementById('conteudo-relatorio-aluno').classList.add('oculto');
+                return;
+            }
+
+            const aluno = alunos.find(a => String(a.id) === String(idAlunoStr));
+            if (!aluno) return document.getElementById('conteudo-relatorio-aluno').classList.add('oculto');
+
+            document.getElementById('relatorio-avatar-aluno').innerText = aluno.avatar || "🐣";
+            document.getElementById('relatorio-nome-aluno').innerText = aluno.nome;
+            document.getElementById('relatorio-ra-aluno').innerText = aluno.ra;
+            document.getElementById('relatorio-pontos-aluno').innerText = aluno.pontos;
+
+            const containerOcorrencias = document.getElementById('relatorio-lista-ocorrencias');
+            containerOcorrencias.innerHTML = "";
+
+            if (aluno.ocorrencias.length === 0) {
+                containerOcorrencias.innerHTML = "<p style='color: #777;'>Nenhuma ocorrência registrada para este aluno.</p>";
+            } else {
+                aluno.ocorrencias.forEach(oc => {
+                    const desc = typeof oc === 'object' ? oc.texto : oc;
+                    containerOcorrencias.innerHTML += `<div class="item-ocorrencia">📌 ${desc}</div>`;
+                });
+            }
+
+            document.getElementById('conteudo-relatorio-aluno').classList.remove('oculto');
+            document.getElementById('conteudo-relatorio-aluno').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

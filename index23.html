@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Escolar - Ocorrências e Histórico</title>
+    <style>
+        /* ==========================================================
+           1. ESTILIZAÇÃO GERAL E LAYOUT (CSS)
+           ========================================================== */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Estilização do filtro */
+        .filtro-section {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        /* Estilização das tabelas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .badge-ocorrencia {
+            background-color: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-premio {
+            background-color: #2ecc71;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏫 Gestão Escolar: Ocorrências e Premiações</h1>
+
+    <!-- SEÇÃO DE FILTRO DE ALUNOS -->
+    <div class="filtro-section">
+        <label for="seletorAluno">Selecionar Aluno para Filtrar:</label>
+        <select id="seletorAluno" onchange="filtrarDados()">
+            <option value="todos">-- Todos os Alunos --</option>
+            <option value="1">João Silva</option>
+            <option value="2">Maria Oliveira</option>
+            <option value="3">Carlos Souza</option>
+        </select>
+    </div>
+
+    <!-- TABELA 1: OCORRÊNCIAS REGISTRADAS PELOS PROFESSORES -->
+    <h2>📝 Ocorrências Registradas pelos Professores</h2>
+    <p>Utilize este relatório para alinhamentos com a coordenação pedagógica.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Aluno</th>
+                <th>Professor</th>
+                <th>Tipo</th>
+                <th>Descrição / Observação</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaOcorrencias">
+            <!-- Preenchido via JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- TABELA 2: HISTÓRICO DE PREMIAÇÕES E RESGATES -->
+    <h2>🏆 Histórico de Premiações e Resgates</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Aluno</th>
+                <th>Tipo de Ação</th>
+                <th>Item / Descrição</th>
+                <th>Pontos</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaPremiacoes">
+            <!-- Preenchido via JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    /* ==========================================================
+       2. BASE DE DADOS SIMULADA (JAVASCRIPT)
+       ========================================================== */
+
+    // Lista de Ocorrências digitadas pelos professores
+    const ocorrencias = [
+        { idAluno: 1, aluno: "João Silva", professor: "Prof. Ricardo", data: "10/09/2026", tipo: "Comportamento", descricao: "Conversa excessiva durante a explicação de Matemática." },
+        { idAluno: 2, aluno: "Maria Oliveira", professor: "Profa. Ana", data: "11/09/2026", tipo: "Tarefa", descricao: "Não entregou a pesquisa de História no prazo." },
+        { idAluno: 1, aluno: "João Silva", professor: "Profa. Cláudia", data: "12/09/2026", tipo: "Atraso", descricao: "Chegou 15 minutos atrasado no segundo tempo." },
+        { idAluno: 3, aluno: "Carlos Souza", professor: "Prof. Ricardo", data: "12/09/2026", tipo: "Elogio", descricao: "Ajudou o colega a resolver o exercício de Ciências." }
+    ];
+
+    // Lista de Premiações e Resgates
+    const premiacoes = [
+        { idAluno: 1, aluno: "João Silva", tipo: "Ganhou Pontos", item: "Participação Ativa", pontos: "+50", data: "05/09/2026" },
+        { idAluno: 1, aluno: "João Silva", tipo: "Resgate", item: "Vale Lanche na Cantina", pontos: "-100", data: "08/09/2026" },
+        { idAluno: 2, aluno: "Maria Oliveira", tipo: "Ganhou Pontos", item: "Nota 10 na Prova", pontos: "+100", data: "09/09/2026" },
+        { idAluno: 3, aluno: "Carlos Souza", tipo: "Resgate", item: "Ingresso para o Cinema", pontos: "-150", data: "11/09/2026" }
+    ];
+
+    /* ==========================================================
+       3. FUNÇÕES PARA RENDERIZAR E FILTRAR AS TABELAS
+       ========================================================== */
+
+    // Função para preencher a Tabela de Ocorrências
+    function carregarOcorrencias(alunoIdSelecionado) {
+        const tbody = document.getElementById("tabelaOcorrencias");
+        tbody.innerHTML = ""; // Limpa a tabela antes de desenhar
+
+        const listaFiltrada = (alunoIdSelecionado === "todos")
+            ? ocorrencias
+            : ocorrencias.filter(o => o.idAluno == alunoIdSelecionado);
+
+        if (listaFiltrada.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma ocorrência encontrada.</td></tr>`;
+            return;
+        }
+
+        listaFiltrada.forEach(item => {
+            const linha = `
+                <tr>
+                    <td>${item.data}</td>
+                    <td><strong>${item.aluno}</strong></td>
+                    <td>${item.professor}</td>
+                    <td><span class="badge-ocorrencia">${item.tipo}</span></td>
+                    <td>${item.descricao}</td>
+                </tr>
+            `;
+            tbody.innerHTML += linha;
+        });
+    }
+
+    // Função para preencher a Tabela de Premiações e Resgates
+    function carregarPremiacoes(alunoIdSelecionado) {
+        const tbody = document.getElementById("tabelaPremiacoes");
+        tbody.innerHTML = ""; // Limpa a tabela
+
+        const listaFiltrada = (alunoIdSelecionado === "todos")
+            ? premiacoes
+            : premiacoes.filter(p => p.idAluno == alunoIdSelecionado);
+
+        if (listaFiltrada.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum registro de premiação/resgate encontrado.</td></tr>`;
+            return;
+        }
+
+        listaFiltrada.forEach(item => {
+            const linha = `
+                <tr>
+                    <td>${item.data}</td>
+                    <td><strong>${item.aluno}</strong></td>
+                    <td>${item.tipo}</td>
+                    <td>${item.item}</td>
+                    <td><span class="badge-premio">${item.pontos}</span></td>
+                </tr>
+            `;
+            tbody.innerHTML += linha;
+        });
+    }
+
+    // Função principal acionada na mudança do Menu Suspenso (select)
+    function filtrarDados() {
+        const alunoSelecionado = document.getElementById("seletorAluno").value;
+        carregarOcorrencias(alunoSelecionado);
+        carregarPremiacoes(alunoSelecionado);
+    }
+
+    // Inicialização: carrega os dados de todos os alunos ao abrir a página
+    window.onload = function() {
+        filtrarDados();
+    };
+</script>
+
+</body>
+</html>

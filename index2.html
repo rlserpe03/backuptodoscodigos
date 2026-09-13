@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassDojo Escola - Gestão de Alunos, Premiações e Ocorrências</title>
+    <!-- Fonte & Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --dark-blue: #1e3a8a;
+            --light-blue: #eff6ff;
+            --accent-yellow: #eab308;
+            --hover-yellow: #ca8a04;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Top Header */
+        header {
+            background-color: var(--primary-blue);
+            color: var(--bg-white);
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--accent-yellow);
+            box-shadow: var(--shadow-md);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-icon {
+            background-color: var(--accent-yellow);
+            color: var(--dark-blue);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: 900;
+        }
+
+        .logo-text { font-size: 1.4rem; font-weight: 800; }
+        .logo-text span { color: var(--accent-yellow); }
+
+        /* Navigation Tabs */
+        nav { display: flex; background-color: var(--dark-blue); justify-content: center; gap: 1rem; }
+        .nav-btn {
+            background: none; border: none; color: #93c5fd;
+            padding: 0.8rem 1.2rem; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            border-bottom: 4px solid transparent; transition: all 0.2s;
+        }
+        .nav-btn.active, .nav-btn:hover { color: var(--bg-white); border-bottom-color: var(--accent-yellow); }
+
+        /* Main Container */
+        .container { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; width: 100%; flex: 1; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        /* ClassDojo Student Grid */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1.2rem;
+        }
+        .student-card {
+            background: var(--bg-white);
+            border: 2px solid var(--border-color);
+            border-radius: 16px; padding: 1.2rem 0.8rem;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+        }
+        .student-card:hover { transform: translateY(-5px); border-color: var(--primary-blue); }
+
+        .monster-avatar {
+            width: 65px; height: 65px; border-radius: 50%;
+            background-color: var(--light-blue); border: 3px solid var(--accent-yellow);
+            margin: 0 auto 0.6rem auto; display: flex; align-items: center;
+            justify-content: center; font-size: 2rem;
+        }
+
+        .student-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; }
+        .points-badge {
+            display: inline-block; background-color: var(--accent-yellow);
+            color: var(--text-dark); font-weight: 900; border-radius: 20px;
+            padding: 0.2rem 0.8rem; font-size: 0.9rem;
+        }
+        .points-badge.negative { background-color: var(--danger-red); color: white; }
+
+        /* Buttons & Forms */
+        .btn {
+            background-color: var(--accent-yellow); color: var(--text-dark);
+            font-weight: 800; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-blue { background-color: var(--primary-blue); color: var(--bg-white); }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); display: none;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-white); border-radius: 16px; width: 100%; max-width: 480px; padding: 1.5rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+
+        .behavior-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-top: 1rem; }
+        .behavior-btn {
+            background: var(--bg-light); border: 2px solid var(--border-color);
+            border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; font-weight: 700;
+        }
+        .behavior-btn:hover { border-color: var(--accent-yellow); background: var(--light-blue); }
+
+        /* Mobile Adaptations */
+        @media (max-width: 640px) {
+            header { flex-direction: column; gap: 0.8rem; }
+            .student-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .behavior-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon"><i class="fa-solid fa-face-smile"></i></div>
+            <div class="logo-text">ClassDojo <span>Escola</span></div>
+        </div>
+        <button class="btn" onclick="abrirModalSupabase()"><i class="fa-solid fa-database"></i> Conectar Supabase</button>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <button class="nav-btn active" onclick="trocarAba('turma')"><i class="fa-solid fa-users"></i> Minha Turma</button>
+        <button class="nav-btn" onclick="trocarAba('ocorrencias')"><i class="fa-solid fa-clipboard-list"></i> Ocorrências</button>
+        <button class="nav-btn" onclick="trocarAba('avisos')"><i class="fa-solid fa-bullhorn"></i> Avisos aos Pais</button>
+    </nav>
+
+    <div class="container">
+        <!-- ABA 1: TURMA -->
+        <section id="sec-turma" class="page-section active">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2><i class="fa-solid fa-graduation-cap"></i> Turma: 5º Ano A</h2>
+                <button class="btn btn-blue" onclick="abrirModalAluno()"><i class="fa-solid fa-user-plus"></i> Novo Aluno</button>
+            </div>
+            <div class="student-grid" id="grid-alunos"></div>
+        </section>
+
+        <!-- ABA 2: OCORRÊNCIAS -->
+        <section id="sec-ocorrencias" class="page-section">
+            <h2><i class="fa-solid fa-book-open-reader"></i> Histórico de Ocorrências Diárias</h2>
+            <div id="lista-ocorrencias" style="margin-top: 1rem;">
+                <p style="color:var(--text-muted)">Nenhuma ocorrência grave registrada hoje.</p>
+            </div>
+        </section>
+
+        <!-- ABA 3: AVISOS -->
+        <section id="sec-avisos" class="page-section">
+            <h2><i class="fa-solid fa-comments"></i> Mural de Comunicados aos Pais</h2>
+            <div id="lista-avisos" style="margin-top: 1rem;">
+                <p style="color:var(--text-muted)">Nenhum aviso novo publicado.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL PONTUAR ALUNO -->
+    <div class="modal-overlay" id="modal-pontuar">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-aluno-nome">Atribuir Ponto</h3>
+                <button style="border:none; background:none; font-size:1.5rem; cursor:pointer;" onclick="fecharModais()">&times;</button>
+            </div>
+            <div class="behavior-grid">
+                <div class="behavior-btn" onclick="atribuirPontos(1)"><i class="fa-solid fa-hand-holding-heart" style="color:green;"></i> +1 Ajuda Colegas</div>
+                <div class="behavior-btn" onclick="atribuirPontos(1)"><i class="fa-solid fa-bullseye" style="color:green;"></i> +1 Focado</div>
+                <div class="behavior-btn" onclick="atribuirPontos(2)"><i class="fa-solid fa-users" style="color:green;"></i> +2 Trabalho Equipe</div>
+                <div class="behavior-btn" onclick="atribuirPontos(-1)"><i class="fa-solid fa-triangle-exclamation" style="color:red;"></i> -1 Desatento</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let alunos = [
+            { id: 1, nome: "Ana Beatriz", pontos: 12, monster: "👾" },
+            { id: 2, nome: "Bruno Silva", pontos: 8, monster: "🤖" },
+            { id: 3, nome: "Carla Souza", pontos: 15, monster: "🦊" },
+            { id: 4, nome: "Daniel Costa", pontos: -1, monster: "🦁" }
+        ];
+
+        let alunoSelecionado = null;
+
+        function renderizarAlunos() {
+            const grid = document.getElementById('grid-alunos');
+            grid.innerHTML = '';
+            alunos.forEach(a => {
+                grid.innerHTML += `
+                    <div class="student-card" onclick="abrirModalPontuar(${a.id})">
+                        <div class="monster-avatar">${a.monster}</div>
+                        <div class="student-name">${a.nome}</div>
+                        <div class="points-badge ${a.pontos < 0 ? 'negative' : ''}">
+                            ${a.pontos > 0 ? '+' : ''}${a.pontos}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function trocarAba(aba) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`sec-${aba}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function abrirModalPontuar(id) {
+            alunoSelecionado = alunos.find(a => a.id === id);
+            document.getElementById('modal-aluno-nome').innerText = `Atribuir ponto: ${alunoSelecionado.nome}`;
+            document.getElementById('modal-pontuar').classList.add('active');
+        }
+
+        function atribuirPontos(pts) {
+            if (alunoSelecionado) {
+                alunoSelecionado.pontos += pts;
+                renderizarAlunos();
+                fecharModais();
+            }
+        }
+
+        function fecharModais() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        document.addEventListener("DOMContentLoaded", renderizarAlunos);
+    </script>
+</body>
+</html>

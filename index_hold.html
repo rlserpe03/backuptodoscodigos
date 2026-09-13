@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClassDojo Escolar</title>
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Ícones Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Barra Superior de Navegação -->
+  <header>
+    <div class="logo">
+      <i class="fa-solid fa-graduation-cap"></i>
+      <span>ClassDojo <small>Escola</small></span>
+    </div>
+    <nav>
+      <button class="nav-btn active" onclick="switchTab('turma')"><i class="fa-solid fa-users"></i> Turma</button>
+      <button class="nav-btn" onclick="switchTab('avisos')"><i class="fa-solid fa-bullhorn"></i> Mural de Avisos</button>
+      <button class="nav-btn" onclick="switchTab('ocorrencias')"><i class="fa-solid fa-clipboard-list"></i> Ocorrências</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    
+    <!-- ABA 1: VISUALIZAÇÃO DA TURMA (ESTILO CLASSDOJO) -->
+    <section id="tab-turma" class="tab-content active">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-chalkboard-user"></i> Alunos da Turma</h2>
+        <button class="btn-primary" onclick="abrirModalAviso()"><i class="fa-solid fa-plus"></i> Novo Aviso</button>
+      </div>
+
+      <!-- Grid com os Cards dos Alunos -->
+      <div id="student-grid" class="student-grid">
+        <p class="loading-text">Carregando alunos do Supabase...</p>
+      </div>
+    </section>
+
+    <!-- ABA 2: MURAL DE AVISOS AOS PAIS -->
+    <section id="tab-avisos" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-bullhorn"></i> Mural de Avisos para os Pais</h2>
+        <button class="btn-primary" onclick="abrirModalAviso()"><i class="fa-solid fa-plus"></i> Criar Aviso</button>
+      </div>
+      <div id="avisos-feed" class="feed-container">
+        <p class="loading-text">Carregando avisos...</p>
+      </div>
+    </section>
+
+    <!-- ABA 3: HISTÓRICO DE OCORRÊNCIAS -->
+    <section id="tab-ocorrencias" class="tab-content">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-clipboard-list"></i> Histórico de Ocorrências Diárias</h2>
+      </div>
+      <div id="ocorrencias-list" class="feed-container">
+        <p class="loading-text">Carregando ocorrências...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ATRIBUIR PONTO / PREMIAÇÃO -->
+  <div id="modal-ponto" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-aluno-nome">Atribuir Ponto ao Aluno</h3>
+        <span class="close-btn" onclick="fecharModais()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <h4><i class="fa-solid fa-thumbs-up color-green"></i> Positivos</h4>
+        <div class="skills-grid">
+          <button class="skill-btn positive" onclick="darPonto(1, 'Ajuda os colegas')">+1 Ajuda os colegas</button>
+          <button class="skill-btn positive" onclick="darPonto(1, 'Focado na tarefa')">+1 Focado na tarefa</button>
+          <button class="skill-btn positive" onclick="darPonto(2, 'Participação excelente')">+2 Participação</button>
+        </div>
+
+        <h4 style="margin-top: 1rem;"><i class="fa-solid fa-thumbs-down color-red"></i> A melhorar</h4>
+        <div class="skills-grid">
+          <button class="skill-btn negative" onclick="darPonto(-1, 'Desatento na aula')">-1 Desatento</button>
+          <button class="skill-btn negative" onclick="darPonto(-1, 'Sem tarefa de casa')">-1 Sem tarefa</button>
+        </div>
+
+        <hr style="margin: 1.5rem 0 1rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+        <h4><i class="fa-solid fa-triangle-exclamation color-red"></i> Registrar Ocorrência Diária</h4>
+        <form id="form-ocorrencia" onsubmit="salvarOcorrencia(event)">
+          <input type="text" id="oc-titulo" placeholder="Título da Ocorrência" required>
+          <textarea id="oc-descricao" placeholder="Descrição detalhada do ocorrido..." rows="3" required></textarea>
+          <select id="oc-gravidade">
+            <option value="leve">Gravidade: Leve</option>
+            <option value="media">Gravidade: Média</option>
+            <option value="grave">Gravidade: Grave</option>
+          </select>
+          <button type="submit" class="btn-danger"><i class="fa-solid fa-floppy-disk"></i> Registrar Ocorrência</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAR AVISO PARA OS PAIS -->
+  <div id="modal-aviso" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Publicar Aviso no Mural</h3>
+        <span class="close-btn" onclick="fecharModais()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="form-aviso" onsubmit="salvarAviso(event)">
+          <input type="text" id="aviso-titulo" placeholder="Título do Aviso" required>
+          <textarea id="aviso-conteudo" placeholder="Escreva aqui a mensagem para os pais..." rows="4" required></textarea>
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Publicar Aviso</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

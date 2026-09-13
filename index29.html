@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestão Escolar - Supabase</title>
+  
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f6f9; }
+    h1, h2 { color: #333; }
+    .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    form { display: flex; flex-direction: column; gap: 10px; max-width: 400px; }
+    input, select, button { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+    button:hover { background-color: #0056b3; }
+  </style>
+
+  <!-- 1. IMPORTAÇÃO DO SDK DO SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <h1>Sistema de Gestão Escolar</h1>
+
+  <!-- FORMULÁRIO: CADASTRO DE ALUNOS -->
+  <div class="card">
+    <h2>Cadastrar Aluno</h2>
+    <form id="form-aluno">
+      <input type="text" id="aluno-nome" placeholder="Nome completo do aluno" required>
+      <input type="text" id="aluno-turma" placeholder="Turma / Ano escolar (Ex: 8º Ano A)" required>
+      <input type="text" id="aluno-matricula" placeholder="Número de matrícula" required>
+      <button type="submit">Cadastrar Aluno</button>
+    </form>
+  </div>
+
+  <!-- FORMULÁRIO: LANÇAMENTO DE PONTOS -->
+  <div class="card">
+    <h2>Lançar Pontos</h2>
+    <form id="form-pontos">
+      <input type="text" id="ponto-aluno-id" placeholder="UUID do Aluno" required>
+      <input type="number" id="ponto-qtd" placeholder="Quantidade de Pontos (+ ou -)" required>
+      <input type="text" id="ponto-motivo" placeholder="Motivo (Ex: Participação)" required>
+      <button type="submit">Registrar Pontos</button>
+    </form>
+  </div>
+
+  <!-- FORMULÁRIO: REGISTO DE OCORRÊNCIAS -->
+  <div class="card">
+    <h2>Registrar Ocorrência</h2>
+    <form id="form-ocorrencia">
+      <input type="text" id="ocorrencia-aluno-id" placeholder="UUID do Aluno" required>
+      <input type="text" id="ocorrencia-titulo" placeholder="Título da ocorrência" required>
+      <input type="text" id="ocorrencia-desc" placeholder="Descrição detalhada" required>
+      <select id="ocorrencia-gravidade">
+        <option value="low">Baixa</option>
+        <option value="medium">Média</option>
+        <option value="high">Alta</option>
+      </select>
+      <button type="submit">Registrar Ocorrência</button>
+    </form>
+  </div>
+
+  <!-- LÓGICA E CONEXÃO COM O SUPABASE -->
+  <script>
+    // ==========================================
+    // CONFIGURAÇÃO DAS CHAVES DE ACESSO
+    // ==========================================
+    // Substitui com os teus dados em Project Settings > API no Supabase
+    const SUPABASE_URL = 'https://TEU_PROJETO.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'TUA_CHAVE_ANON_AQUI';       
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ==========================================
+    // 1. FUNÇÕES DE INSERÇÃO (POSTS)
+    // ==========================================
+
+    // Cadastra um novo aluno na tabela 'students'
+    async function cadastrarAluno(nome, turma, matricula) {
+      const { data, error } = await supabaseClient
+        .from('students')
+        .insert([{ full_name: nome, grade_level: turma, registration_number: matricula }]);
+
+      if (error) {
+        console.error('Erro ao cadastrar aluno:', error);
+        alert('Erro ao cadastrar aluno: ' + error.message);
+      } else {
+        alert('Aluno cadastrado com sucesso no Supabase!');
+        document.getElementById('form-aluno').reset();
+      }
+    }
+
+    // Lança pontos para um aluno na tabela 'points_log'
+    async function lancarPontos(alunoId, quantidade, motivo) {
+      const { data, error } = await supabaseClient
+        .from('points_log')
+        .insert([{ student_id: alunoId, points_change: parseInt(quantidade), reason: motivo }]);
+
+      if (error) {
+        console.error('Erro ao lançar pontos:', error);
+        alert('Erro ao lançar pontos: ' + error.message);
+      } else {
+        alert('Pontos lançados com sucesso!');
+        document.getElementById('form-pontos').reset();
+      }
+    }
+
+    // Regista uma ocorrência na tabela 'incidents'
+    async function registrarOcorrencia(alunoId, titulo, descricao, gravidade) {
+      const { data, error } = await supabaseClient
+        .from('incidents')
+        .insert([{ student_id: alunoId, title: titulo, description: descricao, severity: gravidade }]);
+
+      if (error) {
+        console.error('Erro ao registrar ocorrência:', error);
+        alert('Erro ao registrar ocorrência: ' + error.message);
+      } else {
+        alert('Ocorrência registrada com sucesso!');
+        document.getElementById('form-ocorrencia').reset();
+      }
+    }
+
+    // ==========================================
+    // 2. CAPTURA DOS EVENTOS DOS FORMULÁRIOS
+    // ==========================================
+
+    document.getElementById('form-aluno').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('aluno-nome').value;
+      const turma = document.getElementById('aluno-turma').value;
+      const matricula = document.getElementById('aluno-matricula').value;
+      cadastrarAluno(nome, turma, matricula);
+    });
+
+    document.getElementById('form-pontos').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const alunoId = document.getElementById('ponto-aluno-id').value;
+      const qtd = document.getElementById('ponto-qtd').value;
+      const motivo = document.getElementById('ponto-motivo').value;
+      lancarPontos(alunoId, qtd, motivo);
+    });
+
+    document.getElementById('form-ocorrencia').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const alunoId = document.getElementById('ocorrencia-aluno-id').value;
+      const titulo = document.getElementById('ocorrencia-titulo').value;
+      const desc = document.getElementById('ocorrencia-desc').value;
+      const gravidade = document.getElementById('ocorrencia-gravidade').value;
+      registrarOcorrencia(alunoId, titulo, desc, gravidade);
+    });
+  </script>
+</body>
+</html>

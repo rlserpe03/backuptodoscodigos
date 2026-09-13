@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão Escolar - Conexão Supabase</title>
+
+  <!-- 1. IMPORTAÇÃO DA BIBLIOTECA DO SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <h1>Registo de Pontos dos Alunos</h1>
+
+  <!-- Formulário para lançar pontos -->
+  <form id="points-form">
+    <label for="student-id">ID do Aluno:</label><br>
+    <input type="text" id="student-id" placeholder="Cole o UUID do aluno" required><br><br>
+
+    <label for="points">Quantidade de Pontos (+ ou -):</label><br>
+    <input type="number" id="points" placeholder="Ex: 10 ou -5" required><br><br>
+
+    <label for="reason">Motivo:</label><br>
+    <input type="text" id="reason" placeholder="Ex: Participação na aula" required><br><br>
+
+    <button type="submit">Lançar Pontos</button>
+  </form>
+
+  <h2>Lista de Alunos</h2>
+  <ul id="students-list">A carregar alunos...</ul>
+
+  <!-- 2. SCRIPT DE CONEXÃO E LÓGICA DA APLICAÇÃO -->
+  <script>
+    // Configurações de Acesso ao Supabase
+    const SUPABASE_URL = 'TUA_URL_DO_SUPABASE';
+    const SUPABASE_ANON_KEY = 'TUA_CHAVE_ANON_KEY';
+
+    // Inicialização do cliente Supabase
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // FUNÇÃO 1: Carregar e listar todos os alunos da tabela 'students'
+    async function loadStudents() {
+      const { data, error } = await supabaseClient
+        .from('students')
+        .select('*');
+
+      if (error) {
+        console.error('Erro ao carregar alunos:', error.message);
+        return;
+      }
+
+      const listElement = document.getElementById('students-list');
+      listElement.innerHTML = ''; // Limpa a lista antes de atualizar
+
+      data.forEach(student => {
+        const li = document.createElement('li');
+        li.textContent = `${student.full_name} | Turma: ${student.grade_level} | Pontos Totais: ${student.total_points} (ID: ${student.id})`;
+        listElement.appendChild(li);
+      });
+    }
+
+    // FUNÇÃO 2: Inserir um novo lançamento na tabela 'points_log'
+    document.getElementById('points-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const studentId = document.getElementById('student-id').value;
+      const pointsChange = parseInt(document.getElementById('points').value);
+      const reason = document.getElementById('reason').value;
+
+      const { data, error } = await supabaseClient
+        .from('points_log')
+        .insert([
+          { 
+            student_id: studentId, 
+            points_change: pointsChange, 
+            reason: reason 
+          }
+        ]);
+
+      if (error) {
+        alert('Erro ao registar pontos: ' + error.message);
+      } else {
+        alert('Pontos lançados com sucesso!');
+        document.getElementById('points-form').reset();
+        loadStudents(); // Recarrega a lista para mostrar o novo saldo atualizado pelo TRIGGER
+      }
+    });
+
+    // Carrega a lista de alunos assim que a página abre
+    loadStudents();
+  </script>
+</body>
+</html>
